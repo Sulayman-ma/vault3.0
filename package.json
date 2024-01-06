@@ -1,0 +1,32 @@
+{
+  "name": "vault3.0",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@heroicons/react": "^2.1.1",
+    "@material-tailwind/react": "^2.1.8",
+    "@web5/api": "^0.8.3",
+    "@web5/credentials": "^0.4.1",
+    "@web5/dids": "^0.2.4",
+    "clsx": "^2.0.0",
+    "crypto-browserify": "3.12.0",
+    "next": "14.0.4",
+    "process": "0.11.10",
+    "react": "^18",
+    "react-dom": "^18",
+    "stream-browserify": "3.0.0"
+  },
+  "devDependencies": {
+    "autoprefixer": "^10.0.1",
+    "eslint": "^8",
+    "eslint-config-next": "14.0.4",
+    "postcss": "^8",
+    "tailwindcss": "^3.3.0"
+  }
+}
