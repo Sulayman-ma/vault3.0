@@ -97,7 +97,9 @@ export default function AddCredential() {
   return (
     <form onSubmit={handleSubmit}>
       {/* ALERT OR SOMETHING, I'VE COMMENTED THIS EVERYWHERE AND I'M STARTING TO GET TIRED HONESTLY BUT I WON'T STOP */}
-      <CustomAlert alertInfo={alertInfo} />
+      {
+        alertInfo.open && <CustomAlert alertInfo={alertInfo} />
+      }
       <div className="mb-1 gap-10 grid lg:grid-cols-2">
         {/* ASSET TYPE (GROUP) */}
         <div>

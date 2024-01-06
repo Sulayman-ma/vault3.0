@@ -93,7 +93,7 @@ export default function SecretCard({ assetData }) {
     <>
       {/* CARD HEADER */}
       <CardHeader
-        className="flex flex-row justify-evenly bg-transparent my-3 py-0 mt-3 w-full"
+        className="flex flex-row justify-evenly bg-transparent my-3 mx-3 py-0 mt-3 w-full"
         shadow={false}
         color="white"
       >
@@ -121,7 +121,9 @@ export default function SecretCard({ assetData }) {
       <CardBody className="w-full text-white">
         {/* ALERT COMPONENT */}
         <div className="md:w-[60%] lg:w-[50%] m-auto my-5 flex justify-center items-center">
-          <CustomAlert alertInfo={alertInfo} />
+        {
+          alertInfo.open && <CustomAlert alertInfo={alertInfo} />
+        }
         </div>
         
         {/* CARD BODY CONTENT */}

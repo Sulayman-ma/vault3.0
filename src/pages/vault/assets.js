@@ -185,18 +185,28 @@ export default function Page() {
               </div>
             ) 
             :
-            renderData.forEach(({ records }) => {
-              <>
-                {records.map((record, index) => (
-                  <div key={index}>
-                    <MiniCard
-                      assetData={record}
-                      setAsActive={setActiveCard} 
-                    />
-                  </div>
-                ))}
-              </>
-            })
+            renderData.map(({ group, records }, index) => (
+              <Accordion open={openAcc === index} key={index}>
+                <AccordionHeader 
+                  onClick={() => handleOpen(index)}
+                  className="text-white hover:text-gray-800"
+                >
+                  {group.toUpperCase()}
+                </AccordionHeader>
+
+                <AccordionBody className="text-white">
+                  {records.map((record, index) => (
+                    <div key={index}>
+                      <MiniCard
+                        assetData={record}
+                        setAsActive={setActiveCard}
+                        setLoading={setLoading}
+                      />
+                    </div>
+                  ))}
+                </AccordionBody>
+              </Accordion>
+            ))
           }
         </Drawer>
       </Fragment>

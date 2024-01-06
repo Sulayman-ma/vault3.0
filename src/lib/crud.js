@@ -55,7 +55,7 @@ export async function addSecret(web5, recordData) {
       }
     })
     console.info(response.status)
-    return response
+    return response.status.code
   } catch (error) {
     console.error('Add pass failed:', error)
     throw new Error('Failed to add entry')
@@ -74,7 +74,7 @@ export async function addBeneficiary(web5, recordData) {
       }
     })
 
-    return response
+    return response.status.code
   } catch (error) {
     console.error('Add beneficiary failed:', error)
     throw new Error('Failed to add beneficiary')
@@ -192,7 +192,8 @@ export async function getBeneficiaries(web5) {
         },
       },
     });
-  
+    
+    console.info('Getting beneficiaries')
     if (response.status.code === 200) {
       const beneficiaries = await Promise.all(
         response.records.map(async (record) => {
@@ -253,7 +254,7 @@ export async function deleteRecord(web5, recordId) {
       },
     });
   
-    return response
+    return response.status.code
   } catch (error) {
     console.error('Delete record failed:', error)
     throw new Error('Failed to delete record')
@@ -329,5 +330,4 @@ export function getFileInfo(base64String) {
     mimeType: mimeType,
     extension: extension
   }
-
 }

@@ -13,6 +13,7 @@ export default function CustomAlert({ alertInfo }) {
       onClose={dismiss}
       color={alertInfo.color}
       className="my-5"
+      variant="outlined"
     >
       {alertInfo.content}
     </Alert>
