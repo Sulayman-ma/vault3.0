@@ -14,7 +14,15 @@ export default function VaultLayout({ children }) {
     const initWeb5 = async () => {
       try {
         const { Web5 } = await import('@web5/api')
-        const { web5, did: myDid } = await Web5.connect({ sync: '5s' })
+        const { web5, did: myDid } = await Web5.connect({
+          sync: '5s',
+          // COMMENT OUT BEFORE DEPLOYMENT //
+          techPreview: {
+            dwnEndpoints: [
+              "http://localhost:2222"
+            ]
+          }
+        })
   
         setWeb5(web5)
         setMyDid(myDid)
