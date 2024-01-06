@@ -68,7 +68,9 @@ export default function AddSecret() {
       onSubmit={handleSubmit} 
       className='lg:w-1/2 m-auto'
     >
-      <CustomAlert alertInfo={alertInfo} />
+      {
+        alertInfo.open && <CustomAlert alertInfo={alertInfo} />
+      }
       <div className="mb-1 grid gap-14">
         <Input
           size="lg"
@@ -104,15 +106,17 @@ export default function AddSecret() {
           onChange={(e) => setPhrase(e.target.value)}
         />
       </div>
-      <div className='flex justify-center'>
+      {/* SUBMIT BUTTON */}
+      <div className='flex flex-row justify-center items-center text-center'>
         <Button 
-          className="w-2/5 md:w-1/3 lg:w-1/3 mt-6 bg-black hover:bg-gray-800"
+          className="flex items-center justify-center w-2/5 md:w-1/3 lg:w-1/3 mt-6 bg-black hover:bg-gray-800"
           fullWidth
-          disabled={!isFormReady || loading}
+          disabled={!isFormReady}
           type='submit'
         >
           {
-            loading ? <Spinner color="orange" className="w-5 h-5" /> 
+            loading ? 
+            <Spinner color="orange" className="w-5 h-5" />
             : 
             'add'
           }

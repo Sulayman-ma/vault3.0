@@ -5,11 +5,12 @@ import {
   DialogBody, 
   DialogFooter, 
   DialogHeader, 
+  Spinner, 
   Typography 
 } from "@material-tailwind/react";
 import { useState, useContext } from "react";
-import { Web5Context } from "@/app/lib/contexts";
-import { deleteRecord } from "@/app/lib/crud";
+import { Web5Context } from "@/lib/contexts";
+import { deleteRecord } from "@/lib/crud";
 import clsx from "clsx";
 
 export default function ListBeneficiaries({ 
@@ -20,11 +21,12 @@ export default function ListBeneficiaries({
   const { web5 } = useContext(Web5Context)
 
   // COMPONENT STATES
+  const [loading, setLoading] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
   const [removeData, setRemoveData] = useState({
     benName: '',
     recordId: ''
   });
-  const [openDialog, setOpenDialog] = useState(false);
 
   // CLICK ACTION HANDLERS
   const handleRemove = (benName, recordId) => {
@@ -36,10 +38,11 @@ export default function ListBeneficiaries({
   }
 
   const removeBeneficiary = async () => {
+    setLoading(true)
     try {
-      // close dialog before removing beneficiary
+      const code = await deleteRecord(web5, removeData.recordId)
+      
       setOpenDialog(false)
-      await deleteRecord(web5, removeData.recordId)
       setAlertInfo({
         open: true,
         color: 'green',
@@ -52,6 +55,7 @@ export default function ListBeneficiaries({
         content: error
       })
     }
+    setLoading(false)
   };
 
   const TABLE_HEAD = ['Name', 'DID', 'Relationship', '']
@@ -68,7 +72,7 @@ export default function ListBeneficiaries({
                   "border-b border-white-100 bg-white-50 p-4",
                   {
                     // hide DID on mobile because I hate the scroll
-                    'hidden md:table-cell' : head === 'DID'
+                    // 'hidden md:table-cell' : head === 'DID'
                   }
                 )}
               >
@@ -98,7 +102,7 @@ export default function ListBeneficiaries({
                     {name}
                   </Typography>
                 </td>
-                <td className={`hidden md:table-cell ${classes}`}>
+                <td className={`${classes}`}>
                   <Typography
                     variant="paragraph"
                     color="white"
@@ -136,7 +140,12 @@ export default function ListBeneficiaries({
       <Dialog open={openDialog} handler={() => setOpenDialog(!openDialog)}>
         <DialogHeader color="red">Remove Beneficiary</DialogHeader>
         <DialogBody>
-          Are you sure you want to remove {removeData.benName} from list?
+        {
+            loading ? 
+            <Spinner color="orange" className="w-30 h-30" />
+            : 
+            'Are you sure you want to remove {removeData.benName} from list?'
+          }
         </DialogBody>
         <DialogFooter>
           <Button

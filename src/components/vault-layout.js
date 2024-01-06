@@ -13,6 +13,7 @@ export default function VaultLayout({ children }) {
   useEffect(() => {
     const initWeb5 = async () => {
       try {
+        console.info('Connecting to web5')
         const { Web5 } = await import('@web5/api')
         const { web5, did: myDid } = await Web5.connect({ sync: '5s' })
   

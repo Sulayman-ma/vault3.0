@@ -110,7 +110,7 @@ export default function OtherCard({ assetData }) {
     <>
       {/* CARD HEADER */}
       <CardHeader
-        className="flex flex-row justify-evenly bg-transparent my-3 py-0 mt-3 w-full"
+        className="flex flex-row justify-evenly bg-transparent my-3 mx-3 py-0 mt-3 w-full"
         shadow={false}
         color="white"
       >
