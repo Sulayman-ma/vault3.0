@@ -11,10 +11,16 @@ import {
   Tooltip,
   Alert,
   Spinner,
-  Input
+  Input,
+  Popover,
+  PopoverHandler,
+  PopoverContent,
+  ListItem,
+  List
 } from "@material-tailwind/react"
 import {
   ArrowDownIcon,
+  EllipsisHorizontalIcon,
   EyeIcon,
   EyeSlashIcon,
   PencilIcon, 
@@ -24,7 +30,7 @@ import { useContext, useState } from "react"
 import { Web5Context } from "@/lib/contexts"
 import { deleteRecord, updateRecord } from "@/lib/crud"
 
-export default function SecretCard({ assetData, updateAsset }) {   
+export default function SecretCard({ assetData, updateAsset, setBlank }) {   
   // WEB5 CONTEXT AND ASSET GROUP
   const { web5 } = useContext(Web5Context)
 
@@ -125,14 +131,15 @@ export default function SecretCard({ assetData, updateAsset }) {
         content: error.message
       })
     }
-    updateAsset({ group: 'welcome' })
+    // set asset canvas to blank
+    setBlank(true)
   }
 
   return (
     <>
       {/* CARD HEADER */}
       <CardHeader
-        className="flex flex-row justify-evenly bg-transparent my-3 mx-3 py-0 mt-3 w-full"
+        className="flex flex-row justify-between bg-transparent my-3 mx-3 px-5 py-0 mt-3 w-full"
         shadow={false}
         color="white"
       >
@@ -142,18 +149,28 @@ export default function SecretCard({ assetData, updateAsset }) {
         </Typography>
 
         {/* EDIT AND DELETE ICONS */}
-        <div className="flex flex-row gap-2">
-          <Tooltip content="Edit asset">
-            <IconButton onClick={() => {setEditDialog(!editDialog)}} className="text-blue-400">
-              <PencilIcon className="w-8 h-8" />
+        <Popover placement="bottom">
+          <PopoverHandler>
+            <IconButton>
+              <EllipsisHorizontalIcon className="w-10 h-10" />
             </IconButton>
-          </Tooltip>
-          <Tooltip content="Delete asset">
-            <IconButton onClick={() => {setOpenDialog(true)}}  className="text-red-400">
-              <TrashIcon className="w-8 h-8" />
-            </IconButton>
-          </Tooltip>
-        </div>
+          </PopoverHandler>
+          <PopoverContent className="bg-black border-none w-20 flex-col flex items-center">
+            <Button
+              className="bg-transparent text-white hover:shadow-none hover:text-gray-800"
+              selected={false}
+              onClick={() => {setEditDialog(true)}}
+            >
+              Edit
+            </Button>
+            <Button 
+              className="bg-transparent text-white hover:shadow-none hover:text-red-800" 
+              onClick={() => {setOpenDialog(true)}}
+            >
+              Delete
+            </Button>
+          </PopoverContent>
+        </Popover>
       </CardHeader> 
 
       {/* CARD BODY */}
@@ -240,7 +257,7 @@ export default function SecretCard({ assetData, updateAsset }) {
 
       {/* EDIT ASSET DIALOG FORM */}
       <Dialog 
-        size="md"
+        size="xs"
         open={editDialog}
         handler={() => {setEditDialog(!editDialog)}}
         className="bg-gray-900 p-10"
@@ -306,7 +323,7 @@ export default function SecretCard({ assetData, updateAsset }) {
                 'save changes'
               }
             </Button>
-            <Button onClick={() => {setEditDialog(false)}}>
+            <Button disabled={loading} onClick={() => {setEditDialog(false)}}>
               Cancel
             </Button>
           </div>

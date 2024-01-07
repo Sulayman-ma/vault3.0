@@ -19,6 +19,7 @@ import { getAssets } from "@/lib/crud";
 import { MiniCardSkeleton } from "@/components/skeletons";
 import { PlusCircleIcon, Square3Stack3DIcon } from "@heroicons/react/24/solid";
 import { MiniCard } from "@/components/assets/mini-cards";
+import { BlankCard } from "@/components/assets/detailed-cards";
 
 export default function Page() {
   // WEB5 CONTEXT AND WHATNOT
@@ -29,8 +30,9 @@ export default function Page() {
   const [openAcc, setOpenAcc] = useState(false)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [renderData, setRenderData] = useState(null)
+  const [blank, setBlank] = useState(true)
   const [activeCard, setActiveCard] = useState({
-    group: 'welcome',
+    group: '',
     assetData: {},
   })
 
@@ -49,7 +51,8 @@ export default function Page() {
       setRenderData(fetchedData)
     }
 
-    fetchData()
+    try{ fetchData() }
+    catch (error) { console.error('Error fetching assets from DWN') }
   }, [web5, renderData])
 
   // LOADING EFFECT FOR DISPLAYING ASSET DETAILS
@@ -66,13 +69,6 @@ export default function Page() {
       {/* ASSET NAVIGATION FOR MEDIUM TO LARGE SCREENS */}
       <div>
         <Card className="hidden md:flex md:flex-col overflow-auto lg:w-full md:w-[85%] overscroll-none bg-black lg:px-2 lg:ml-2 md:max-h-[27rem] rounded-none pt-5 pr-7">
-          <Typography
-            variant="h3"
-            color="white"
-            className="text-center"
-          >
-            Storage
-          </Typography>
           {/* RENDER MINI CARDS ACCORDING TO THEIR ASSET TYPE */}
           {
             // streaming while fetching data
@@ -94,28 +90,26 @@ export default function Page() {
             :
             // data retrieved with populated list
             renderData.map(({ group, records }, index) => (
-              <Badge key={index} content={records.length} color="blue">
-                <Accordion open={openAcc === index}>
-                  <AccordionHeader 
-                    onClick={() => handleOpen(index)}
-                    className="text-white hover:text-gray-800"
-                  >
-                    {group.toUpperCase()}
-                  </AccordionHeader>
+              <Accordion open={openAcc === index} key={index} >
+                <AccordionHeader 
+                  onClick={() => handleOpen(index)}
+                  className="text-white hover:text-gray-800"
+                >
+                  {group.toUpperCase()}
+                </AccordionHeader>
 
-                  <AccordionBody className="text-white">
-                    {records.map((record, index) => (
-                      <div key={index}>
-                        <MiniCard
-                          assetData={record}
-                          setAsActive={setActiveCard}
-                          setLoading={setLoading}
-                        />
-                      </div>
-                    ))}
-                  </AccordionBody>
-                </Accordion>
-              </Badge>
+                <AccordionBody className="text-white">
+                  {records.map((record, index) => (
+                    <div key={index}>
+                      <MiniCard
+                        assetData={record}
+                        setAsActive={setActiveCard}
+                        setLoading={setLoading}
+                      />
+                    </div>
+                  ))}
+                </AccordionBody>
+              </Accordion>
             ))
           }
           {/* MINI CARD TO ADD NEW ASSET */}
@@ -177,13 +171,6 @@ export default function Page() {
               />
             </svg>
           </IconButton>
-          <Typography
-            variant="h3"
-            color="white"
-            className="text-center"
-          >
-            Storage
-          </Typography>
           {/* RENDER MINI CARDS ACCORDING TO THEIR ASSET TYPE */}
           {
             // streaming while fetching data
@@ -204,33 +191,26 @@ export default function Page() {
             ) 
             :
             renderData.map(({ group, records }, index) => (
-              <Badge 
-                key={index} 
-                content={records.length} 
-                color="blue"
-                className="mt-5"
-              >
-                <Accordion open={openAcc === index}>
-                  <AccordionHeader 
-                    onClick={() => handleOpen(index)}
-                    className="text-white hover:text-gray-800"
-                  >
-                    {group.toUpperCase()}
-                  </AccordionHeader>
+              <Accordion open={openAcc === index} key={index}>
+                <AccordionHeader 
+                  onClick={() => handleOpen(index)}
+                  className="text-white hover:text-gray-800"
+                >
+                  {group.toUpperCase()}
+                </AccordionHeader>
 
-                  <AccordionBody className="text-white">
-                    {records.map((record, index) => (
-                      <div key={index}>
-                        <MiniCard
-                          assetData={record}
-                          setAsActive={setActiveCard}
-                          setLoading={setLoading}
-                        />
-                      </div>
-                    ))}
-                  </AccordionBody>
-                </Accordion>
-              </Badge>
+                <AccordionBody className="text-white">
+                  {records.map((record, index) => (
+                    <div key={index}>
+                      <MiniCard
+                        assetData={record}
+                        setAsActive={setActiveCard}
+                        setLoading={setLoading}
+                      />
+                    </div>
+                  ))}
+                </AccordionBody>
+              </Accordion>
             ))
           }
         </Drawer>
@@ -240,13 +220,16 @@ export default function Page() {
       <div className="flex-1">
         <Card
           shadow={false}
-          className="flex justify-center items-center w-full lg:ml-5 bg-zinc-900 border-zinc-100 text-white min-h-[17rem] mb-20"
+          className="flex justify-center items-center w-full lg:ml-5 bg-gray-900 text-white min-h-[17rem] mb-20"
         >
           {
             loading ?
             <Spinner color="orange" className="w-30 h-30" />
             : 
-            renderDetailedCard(activeCard, updateAsset)
+            blank || activeCard.group === '' ?
+            <BlankCard />
+            :
+            renderDetailedCard(activeCard, updateAsset, setBlank)
           }
         </Card>
       </div>

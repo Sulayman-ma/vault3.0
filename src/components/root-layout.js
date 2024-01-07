@@ -8,8 +8,8 @@ const poppins = Poppins({
 
 export default function RootLayout({ children }) {
   return (
-    <main className={`${poppins.className} overflow-auto`}>
+    <div className={`${poppins.className} overflow-auto`}>
       {children}
-    </main>
+    </div>
   )
 }

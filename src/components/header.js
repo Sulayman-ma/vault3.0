@@ -5,7 +5,7 @@ import {
 } from "@material-tailwind/react";
 import { 
   UserPlusIcon,
-  Square3Stack3DIcon,
+  HomeIcon,
 } from "@heroicons/react/24/solid";
 import Link from "next/link";
 import { Web5Connected } from "@/components/connected-web5";
@@ -27,7 +27,7 @@ export default function Header() {
               selected={pathname === '/assets' ? true : false} 
             >
               <ListItemPrefix>
-                <Square3Stack3DIcon className="h-5 w-5" />
+                <HomeIcon className="h-5 w-5" />
               </ListItemPrefix>
               Assets
             </ListItem>
@@ -43,7 +43,7 @@ export default function Header() {
               Beneficiaries
             </ListItem>
           </Link>
-          <Web5Connected />
+          {/* <Web5Connected /> */}
         </List>
       </div>
 
@@ -55,7 +55,7 @@ export default function Header() {
               className="text-gray-200 hover:bg-gray-500 hover:text-gray-200 focus:text-gray-200 focus:bg-gray-500"
               selected={pathname === '/assets' ? true : false} 
             >
-              <Square3Stack3DIcon className="h-7 w-7" />
+              <HomeIcon className="h-7 w-7" />
             </ListItem>
           </Link>
           <Link href="/beneficiaries">
@@ -68,7 +68,7 @@ export default function Header() {
           </Link>
 
           {/* WEB5 CONNECTION INDICATOR */}
-          <Web5Connected  />
+          {/* <Web5Connected  /> */}
         </List>
       </div>
     </>

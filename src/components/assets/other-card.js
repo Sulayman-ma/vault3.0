@@ -13,9 +13,13 @@ import {
   Spinner,
   Textarea,
   Input,
+  Popover,
+  PopoverHandler,
+  PopoverContent,
 } from "@material-tailwind/react"
 import {
   ArrowDownIcon,
+  EllipsisHorizontalIcon,
   PencilIcon, 
   TrashIcon 
 } from "@heroicons/react/24/solid"
@@ -28,10 +32,9 @@ import {
 import { useContext, useEffect, useState } from "react"
 import { Web5Context } from "@/lib/contexts"
 
-export default function OtherCard({ assetData, updateAsset }) {
+export default function OtherCard({ assetData, updateAsset, setBlank }) {
   // WEB5 CONTEXT AND ASSET GROUP
   const { web5 } = useContext(Web5Context)
-  const group = assetData.group
 
   // COMPONENT STATES
   const [loading, setLoading] = useState(false)
@@ -47,19 +50,6 @@ export default function OtherCard({ assetData, updateAsset }) {
     title: assetData.claim.title,
     credentialContent: assetData.claim.credentialContent
   })
-
-  // GET BENEFICIARY NAME FOR AESTHETICS
-  useEffect(() => {
-    if (!web5) return;
-    // GETTING NAME DEPENDS ON CLAIM FIELD IN CARD INFO OBJECT
-    if (!assetData) return;
-    if (!assetData.claim) return;
-    const getBenName = async () => {
-      const beneficiary = await getBenByDid(web5, assetData.claim.id)
-      setBenName(beneficiary.name)
-    }
-    getBenName()
-  }, [web5, assetData])
 
   // DOWNLOAD ASSET ATTACHMENT
   const downloadFile = async () => {
@@ -131,6 +121,9 @@ export default function OtherCard({ assetData, updateAsset }) {
         color: `${code === 202 ? 'green' : 'red'}`,
         content: `${code === 202 ? 'Asset deleted' : 'Failed to delete asset'}`
       })
+      
+      // reset asset canvas to blank
+      setBlank(true)
     } catch (error) {
       setAlertInfo({
         open: true,
@@ -138,8 +131,6 @@ export default function OtherCard({ assetData, updateAsset }) {
         content: error.message
       })
     }
-    // hide content body after delete
-    updateAsset({ group: 'welcome' })
   }
 
   return (
@@ -152,22 +143,32 @@ export default function OtherCard({ assetData, updateAsset }) {
       >
         {/* HEADER TITLE */}
         <Typography variant="h3">
-          {group}
+          {assetData.group}
         </Typography>
-
+        
         {/* EDIT AND DELETE ICONS */}
-        <div className="flex flex-row gap-2">
-          <Tooltip content="Edit asset">
-            <IconButton onClick={() => {setEditDialog(!editDialog)}} className="text-blue-400">
-              <PencilIcon className="w-8 h-8" />
+        <Popover placement="bottom">
+          <PopoverHandler>
+            <IconButton>
+              <EllipsisHorizontalIcon className="w-10 h-10" />
             </IconButton>
-          </Tooltip>
-          <Tooltip content="Delete asset">
-            <IconButton onClick={() => {setOpenDialog(true)}}  className="text-red-400">
-              <TrashIcon className="w-8 h-8" />
-            </IconButton>
-          </Tooltip>
-        </div>
+          </PopoverHandler>
+          <PopoverContent className="bg-black border-gray-800 w-20 flex-col flex items-center">
+            <Button
+              className="bg-transparent text-white hover:shadow-none hover:text-gray-800"
+              selected={false}
+              onClick={() => {setEditDialog(true)}}
+            >
+              Edit
+            </Button>
+            <Button 
+              className="bg-transparent text-white hover:shadow-none hover:text-red-800" 
+              onClick={() => {setOpenDialog(true)}}
+            >
+              Delete
+            </Button>
+          </PopoverContent>
+        </Popover>
       </CardHeader> 
       
       {/* CARD BODY */}
@@ -187,26 +188,29 @@ export default function OtherCard({ assetData, updateAsset }) {
         
         {/* CARD BODY CONTENT */}
         <Typography variant="h6" color="gray" className="mt-1 font-semibold">
-          TITLE : {assetData.claim.title}
+        TITLE : {assetData.claim.title}
         </Typography>
         <Typography variant="h6" color="gray" className="mt-1 font-semibold">
-          CONTENT : {assetData.claim.credentialContent}
+        CONTENT : {assetData.claim.credentialContent}
         </Typography>
         <Typography variant="h6" color="gray" className="mt-1 font-semibold">
-          CREATED : {assetData.claim.created}
+        CREATED : {assetData.claim.created}
         </Typography>
         <Tooltip content="Download asset file">
           {
+            assetData.claim ?
             assetData.claim.attachment ? (
-            <IconButton
-              color="transparent"
-              ripple={true}
-              className="mt-1 text-center"
-              onClick={downloadFile}
-            >
-              <ArrowDownIcon className="w-6 h-6" />
-            </IconButton>
-            ) : ''
+              <IconButton
+                color="transparent"
+                ripple={true}
+                className="mt-1 text-center"
+                onClick={downloadFile}
+              >
+                <ArrowDownIcon className="w-6 h-6" />
+              </IconButton>
+              ) 
+              : ''
+              : ''
           }
         </Tooltip>
       </CardBody>

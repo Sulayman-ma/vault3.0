@@ -11,8 +11,7 @@ import {
 import { useContext, useEffect, useState } from "react";
 import { 
   addCredential, 
-  convertToBase64, 
-  getBeneficiaries 
+  convertToBase64,
 } from "@/lib/crud";
 import { Web5Context } from "@/lib/contexts";
 
@@ -54,12 +53,15 @@ export default function AddCredential() {
         base64String = await convertToBase64(attachment)
       }
 
+      const timestamp = new Date(Date.now()).toISOString();
+
       const vcData = {
         type: credentialType,
         subject: 'personal',
         title: credentialTitle,
         credentialContent: credentialContent,
         attachment: base64String,
+        created: timestamp
       }
 
       const code = await addCredential(web5, vcData)

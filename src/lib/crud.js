@@ -103,6 +103,7 @@ export async function getSecrets(web5) {
             platform: payload.platform,
             account_name: payload.account_name,
             phrase: payload.phrase,
+            created: payload.created
           }
           return details;
         })
@@ -138,8 +139,7 @@ export async function getCredentials(web5) {
             recordId: record.id,
             group: dwnData.group,
             type: vc.type,
-            claim: vc.vcDataModel.credentialSubject,  
-            created: record.datePublished    
+            claim: vc.vcDataModel.credentialSubject 
           }
           return details;
         })
@@ -173,7 +173,7 @@ export async function getAssets(web5) {
     return renderData
   } catch (error) {
     console.error('Failed to get assets:', error)
-    throw new Error('Failed to fetch assets')
+    // throw new Error('Failed to fetch assets')
   }
 }
 
@@ -218,7 +218,7 @@ export async function getBeneficiaries(web5) {
     }
   } catch (error) {
     console.error('Failed to get beneficiaries:', error)
-    throw new Error('Failed to get beneficiaries')
+    // throw new Error('Failed to get beneficiaries')
   }
 }
 
@@ -284,7 +284,7 @@ export async function updateCredential(web5, newData) {
     const portableDid = await DidIonMethod.create()
     const didString = portableDid.did
 
-    const { type, subject, recordId, group, created, ...rest } = newData
+    const { type, subject, recordId, group, ...rest } = newData
 
     // create VC object
     const vc = await VerifiableCredential.create({

@@ -39,10 +39,12 @@ export default function AddSecret() {
     e.preventDefault();
     setLoading(true)
     try {
+      const timestamp = new Date(Date.now()).toISOString();
       const recordData = {
         account_name: accountName,
         phrase: phrase,
-        platform: platform
+        platform: platform,
+        created: timestamp
       }
       const record = await addSecret(web5, recordData);
       setAlertInfo({

@@ -5,14 +5,12 @@ import {
 import OtherCard from "@/components/assets/other-card";
 import SecretCard from "@/components/assets/secret-card";
 
-export const renderDetailedCard = (stuff, updateAsset) => {
+export const renderDetailedCard = (stuff, updateAsset, setBlank) => {
+  // remove blank card to show other card details
+  setBlank(false)
   switch (stuff.group) {
     case 'new_asset':
       return <NewAssetCard />;
-    case 'welcome':
-      return (
-        <BlankCard />
-      );
     case 'Secret':
       return (
         <SecretCard 
@@ -25,6 +23,7 @@ export const renderDetailedCard = (stuff, updateAsset) => {
       <OtherCard 
         assetData={stuff.assetData} 
         updateAsset={updateAsset}
+        setBlank={setBlank}
       />
       );
   }

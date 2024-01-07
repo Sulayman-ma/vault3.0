@@ -20,7 +20,7 @@ export default function ListBeneficiaries({ setAlertInfo }) {
   // COMPONENT STATES
   const [loading, setLoading] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
-  const [beneficiaries, setBeneficiaries] = useState([])
+  const [beneficiaries, setBeneficiaries] = useState(null)
   const [removeData, setRemoveData] = useState({
     benName: '',
     recordId: ''
@@ -29,12 +29,16 @@ export default function ListBeneficiaries({ setAlertInfo }) {
   // FETCH BENEFICIARIES TO RENDER
   useEffect(() => {
     if(!web5) return;
-    let timer = setTimeout(async () => {
-      const beneficiariesData = await getBeneficiaries(web5);
-      setBeneficiaries(beneficiariesData);
-    }, 2000); // run every 2 seconds
-
-    return () => clearTimeout(timer)
+    try {
+      let timer = setTimeout(async () => {
+        const beneficiariesData = await getBeneficiaries(web5);
+        setBeneficiaries(beneficiariesData);
+      }, 2000); // run every 2 seconds
+  
+      return () => clearTimeout(timer)
+    } catch (error) {
+      console.error(error.message)
+    }
   }, [web5, beneficiaries])
 
   // CLICK ACTION HANDLERS
@@ -74,7 +78,7 @@ export default function ListBeneficiaries({ setAlertInfo }) {
       {
         !beneficiaries ?
         <div className="flex justify-center items-center">
-          <Spinner className="w-30 h-30" color="orange" />
+          <Spinner className="w-100 h-100" color="orange" />
         </div>
         :
         beneficiaries && beneficiaries.length > 0 ? (
@@ -153,9 +157,11 @@ export default function ListBeneficiaries({ setAlertInfo }) {
         </Card>
         ) 
         : 
-        <Typography variant="h3" color="white">
-          No beneficiaries saved
-        </Typography>
+        <div className="flex justify-center items-center">
+          <Typography variant="h5" color="white">
+            No beneficiaries saved
+          </Typography>
+        </div>
       }
 
       {/* CONFIRM REMOVE BENEFICIARY DIALOG */}
