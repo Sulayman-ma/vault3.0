@@ -27,23 +27,11 @@ export default function Page() {
   const [benRelationship, setBenRelationship] = useState('');
   const [isFormReady, setIsFormReady] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
-  const [beneficiaries, setBeneficiaries] = useState([])
   const [alertInfo, setAlertInfo] = useState({
     open: false,
     color: 'blue',
     content: '',
   });
-
-  // FETCH BENEFICIARIES TO RENDER
-  useEffect(() => {
-    if(!web5) return;
-    let timer = setTimeout(async () => {
-      const beneficiariesData = await getBeneficiaries(web5);
-      setBeneficiaries(beneficiariesData);
-    }, 4000); // run every 4 seconds and time the loading to do the same
-
-    return () => clearTimeout(timer)
-  }, [web5, beneficiaries])
 
   // ENABLING FORM ONLY WHEN IT'S FILLED
   useEffect(() => {
@@ -94,7 +82,7 @@ export default function Page() {
       setAlertInfo({
         open: true,
         color: 'red',
-        content: 'Operation failed, please check your connection'
+        content: error.message
       })
     }
     setOpenDialog(false)
@@ -130,10 +118,7 @@ export default function Page() {
       </div>
 
       {/* BENEFICIARIES TABLE */}
-      <ListBeneficiaries
-        beneficiaries={beneficiaries}
-        setAlertInfo={setAlertInfo}
-      />
+      <ListBeneficiaries setAlertInfo={setAlertInfo} />
 
       {/* ADD BENEFICIARY DIALOG FORM */}
       <Dialog 

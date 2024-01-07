@@ -5,7 +5,7 @@ import {
 import OtherCard from "@/components/assets/other-card";
 import SecretCard from "@/components/assets/secret-card";
 
-export const renderDetailedCard = (stuff) => {
+export const renderDetailedCard = (stuff, updateAsset) => {
   switch (stuff.group) {
     case 'new_asset':
       return <NewAssetCard />;
@@ -15,9 +15,17 @@ export const renderDetailedCard = (stuff) => {
       );
     case 'Secret':
       return (
-        <SecretCard assetData={stuff.assetData} />
+        <SecretCard 
+          assetData={stuff.assetData} 
+          updateAsset={updateAsset}
+        />
       );
     default:  
-      return (<OtherCard assetData={stuff.assetData} />);
+      return (
+      <OtherCard 
+        assetData={stuff.assetData} 
+        updateAsset={updateAsset}
+      />
+      );
   }
 }

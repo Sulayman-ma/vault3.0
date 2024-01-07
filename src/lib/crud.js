@@ -29,7 +29,7 @@ export async function addCredential(web5, vcData) {
         protocol: lvp.protocol,
         protocolPath: "credential",
         schema: lvp.types.credential.schema,
-        dataFormat: 'application/json'
+        dataFormat: 'application/json',
       }
     })
 
@@ -54,7 +54,7 @@ export async function addSecret(web5, recordData) {
         dataFormat: 'application/json'
       }
     })
-    console.info(response.status)
+
     return response.status.code
   } catch (error) {
     console.error('Add pass failed:', error)
@@ -111,6 +111,7 @@ export async function getSecrets(web5) {
     }
   } catch (error) {
     console.error('Failed to fetch passes:', error)
+    throw new Error('Failed to get some assets')
   }
 }
 
@@ -125,7 +126,7 @@ export async function getCredentials(web5) {
         },
       },
     });
-  
+    
     if (response.status.code === 200) {
       const docs = await Promise.all(
         // retrieve payload and other necessary data for the credentials
@@ -137,7 +138,8 @@ export async function getCredentials(web5) {
             recordId: record.id,
             group: dwnData.group,
             type: vc.type,
-            claim: vc.vcDataModel.credentialSubject,          
+            claim: vc.vcDataModel.credentialSubject,  
+            created: record.datePublished    
           }
           return details;
         })
@@ -146,6 +148,7 @@ export async function getCredentials(web5) {
       }
   } catch (error) {
     console.error('Failed to fetch credentials:', error)
+    throw new Error('Failed to get some assets')
   }
 }
 
@@ -170,16 +173,21 @@ export async function getAssets(web5) {
     return renderData
   } catch (error) {
     console.error('Failed to get assets:', error)
-    // throw new Error('Failed to fetch assets')
+    throw new Error('Failed to fetch assets')
   }
 }
 
 export async function getBenByDid(web5, did) {
-  const beneficiaries = await getBeneficiaries(web5)
-  const match = await beneficiaries.find(data => data.did === did)
-  if (match === undefined) {
-    return {name: 'Personal'}
-  } else { return match }
+  try {
+    const beneficiaries = await getBeneficiaries(web5)
+    const match = await beneficiaries.find(data => data.did === did)
+    if (match === undefined) {
+      return {name: 'Personal'}
+    } else { return match }
+  } catch (error) {
+    console.error('Get beneficiary name failed: ', error)
+    throw new Error(error.message)
+  }
 }
 
 export async function getBeneficiaries(web5) {
@@ -193,7 +201,6 @@ export async function getBeneficiaries(web5) {
       },
     });
     
-    console.info('Getting beneficiaries')
     if (response.status.code === 200) {
       const beneficiaries = await Promise.all(
         response.records.map(async (record) => {
@@ -211,7 +218,7 @@ export async function getBeneficiaries(web5) {
     }
   } catch (error) {
     console.error('Failed to get beneficiaries:', error)
-    // throw new Error('Failed to get beneficiaries')
+    throw new Error('Failed to get beneficiaries')
   }
 }
 
@@ -243,6 +250,72 @@ export async function getCredential(web5, recordId) {
   } catch (error) {
     console.error('Get credential failed:', error)
     throw new Error('Failed to get credential')
+  }
+}
+
+export async function updateRecord(web5, newData) {
+  try {
+    const { recordId, group, ...newStuff } = newData
+    
+    const { record } = await web5.dwn.records.read({
+      message: {
+        filter: {
+          recordId: recordId
+        },
+      },
+    })
+
+    const response = await record.update({
+      data: {
+        group: group,
+        payload: newStuff
+      }
+    });
+
+    return response.status.code
+  } catch (error) {
+    console.error('Update record failed: ', error)
+    throw new Error('Failed to update record, ', error.message)
+  }
+}
+
+export async function updateCredential(web5, newData) {
+  try {
+    const portableDid = await DidIonMethod.create()
+    const didString = portableDid.did
+
+    const { type, subject, recordId, group, created, ...rest } = newData
+
+    // create VC object
+    const vc = await VerifiableCredential.create({
+      type: type,
+      issuer: didString,
+      subject: subject,
+      data: rest
+    });
+
+    // sign VC with portable DID
+    const signedVcJwt = await vc.sign({ did: portableDid })
+
+    const { record } = await web5.dwn.records.read({
+      message: {
+        filter: {
+          recordId: recordId,
+        },
+      },
+    })
+
+    const response = await record.update({ 
+      data: {
+        group: group,
+        payload: signedVcJwt
+      } 
+    });
+
+    return response.status.code
+  } catch (error) {
+    console.error('Update record failed: ', error)
+    throw new Error('Failed to update record, ', error.message)
   }
 }
 

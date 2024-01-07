@@ -19,6 +19,7 @@ import { getAssets } from "@/lib/crud";
 import { MiniCardSkeleton } from "@/components/skeletons";
 import { PlusCircleIcon, Square3Stack3DIcon } from "@heroicons/react/24/solid";
 import { MiniCard } from "@/components/assets/mini-cards";
+import { BlankCard } from "@/components/assets/detailed-cards";
 
 export default function Page() {
   // WEB5 CONTEXT AND WHATNOT
@@ -37,6 +38,10 @@ export default function Page() {
   // ASSET NAVIGATION: ACCORDIONS AND RIGHT DRAWER
   const handleOpen = (value) => setOpenAcc(openAcc === value ? -1 : value);
   const drawerHandler = () => setDrawerOpen(!drawerOpen);
+  const updateAsset = (newData) => setActiveCard({
+    group: activeCard.group,
+    assetData: newData,
+  })
 
   useEffect(() => {
     if(!web5) return;
@@ -52,7 +57,7 @@ export default function Page() {
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
-    }, 700); // Simulating a 0.7-second loading delay
+    }, 500); // Simulating a 500ms loading delay
 
     return () => clearTimeout(timer);
   }, [loading])
@@ -61,7 +66,14 @@ export default function Page() {
     <div className="flex flex-col md:flex-row pr-6 pl-6 bg-black">
       {/* ASSET NAVIGATION FOR MEDIUM TO LARGE SCREENS */}
       <div>
-        <Card className="hidden md:flex md:flex-col overflow-auto lg:w-full md:w-[85%] overscroll-none bg-black lg:px-2 lg:mr-2 lg:ml-2 md:max-h-[27rem] rounded-none">
+        <Card className="hidden md:flex md:flex-col overflow-auto lg:w-full md:w-[85%] overscroll-none bg-black lg:px-2 lg:ml-2 md:max-h-[27rem] rounded-none pt-5 pr-7">
+          <Typography
+            variant="h3"
+            color="white"
+            className="text-center"
+          >
+            Storage
+          </Typography>
           {/* RENDER MINI CARDS ACCORDING TO THEIR ASSET TYPE */}
           {
             // streaming while fetching data
@@ -83,7 +95,7 @@ export default function Page() {
             :
             // data retrieved with populated list
             renderData.map(({ group, records }, index) => (
-              <Badge key={index} content={records.length} color="orange">
+              <Badge key={index} content={records.length} color="blue">
                 <Accordion open={openAcc === index}>
                   <AccordionHeader 
                     onClick={() => handleOpen(index)}
@@ -117,7 +129,7 @@ export default function Page() {
         {/* OPEN DRAWER BUTTON AND ADD ASSET BUTTOIN */}
         <div className="md:hidden flex flex-row gap-10 justify-between mb-3">
           <ListItem
-            className="bg-gray-900 shadow-none hover:shadow-none rounded-lg text-orange-400"
+            className="bg-gray-900 text-white shadow-none hover:shadow-none rounded-lg"
             onClick={drawerHandler}
           >
             SHOW ASSETS
@@ -125,15 +137,19 @@ export default function Page() {
               <Square3Stack3DIcon className="w-5 h-5" />
             </ListItemSuffix>
           </ListItem>
-          <IconButton
+          <ListItem
+            className="bg-gray-900 shadow-none hover:shadow-none rounded-lg text-orange-400"
             onClick={() => {
               setActiveCard({
                 group: 'new_asset'
               })
             }}
           >
-            <PlusCircleIcon className="w-5 h-5" />
-          </IconButton>
+            NEW
+            <ListItemSuffix>
+              <PlusCircleIcon className="w-5 h-5" />
+            </ListItemSuffix>
+          </ListItem>
         </div>
         <Drawer
           placement="right"
@@ -167,7 +183,7 @@ export default function Page() {
             color="white"
             className="text-center"
           >
-            Asset Groups
+            Storage
           </Typography>
           {/* RENDER MINI CARDS ACCORDING TO THEIR ASSET TYPE */}
           {
@@ -189,7 +205,12 @@ export default function Page() {
             ) 
             :
             renderData.map(({ group, records }, index) => (
-              <Badge key={index} content={records.length} color="orange">
+              <Badge 
+                key={index} 
+                content={records.length} 
+                color="blue"
+                className="mt-5"
+              >
                 <Accordion open={openAcc === index}>
                   <AccordionHeader 
                     onClick={() => handleOpen(index)}
@@ -220,13 +241,13 @@ export default function Page() {
       <div className="flex-1">
         <Card
           shadow={false}
-          className="flex justify-center items-center w-full lg:ml-5 bg-gray-900 text-white min-h-[17rem]"
+          className="flex justify-center items-center w-full lg:ml-5 bg-gray-900 text-white min-h-[17rem] mb-20"
         >
           {
             loading ?
             <Spinner color="orange" className="w-30 h-30" />
             : 
-            renderDetailedCard(activeCard)
+            renderDetailedCard(activeCard, updateAsset)
           }
         </Card>
       </div>

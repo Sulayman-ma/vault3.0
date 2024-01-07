@@ -36,9 +36,9 @@ export default function AddSecret() {
 
   // CLICK ACTION HANDLERS
   const handleSubmit = async (e) => {
+    e.preventDefault();
     setLoading(true)
     try {
-      e.preventDefault();
       const recordData = {
         account_name: accountName,
         phrase: phrase,
@@ -57,7 +57,7 @@ export default function AddSecret() {
       setAlertInfo({
         open: true,
         color: 'red',
-        content: error
+        content: error.message
       })
     }
     setLoading(false)
@@ -117,7 +117,7 @@ export default function AddSecret() {
         <Button 
           className="flex items-center justify-center w-2/5 md:w-1/3 lg:w-1/3 mt-6 bg-black hover:bg-gray-800"
           fullWidth
-          disabled={!isFormReady}
+          disabled={!isFormReady || loading}
           type='submit'
         >
           {

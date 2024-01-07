@@ -8,26 +8,34 @@ import {
   Spinner, 
   Typography 
 } from "@material-tailwind/react";
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { Web5Context } from "@/lib/contexts";
-import { deleteRecord } from "@/lib/crud";
+import { deleteRecord, getBeneficiaries } from "@/lib/crud";
 import clsx from "clsx";
-import { BeneficiariesTableSkeleton } from "../skeletons";
 
-export default function ListBeneficiaries({ 
-  beneficiaries, 
-  setAlertInfo 
-}) {
+export default function ListBeneficiaries({ setAlertInfo }) {
   // WEB5 CONTEXT
   const { web5 } = useContext(Web5Context)
 
   // COMPONENT STATES
   const [loading, setLoading] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
+  const [beneficiaries, setBeneficiaries] = useState([])
   const [removeData, setRemoveData] = useState({
     benName: '',
     recordId: ''
   });
+
+  // FETCH BENEFICIARIES TO RENDER
+  useEffect(() => {
+    if(!web5) return;
+    let timer = setTimeout(async () => {
+      const beneficiariesData = await getBeneficiaries(web5);
+      setBeneficiaries(beneficiariesData);
+    }, 2000); // run every 2 seconds
+
+    return () => clearTimeout(timer)
+  }, [web5, beneficiaries])
 
   // CLICK ACTION HANDLERS
   const handleRemove = (benName, recordId) => {
@@ -53,7 +61,7 @@ export default function ListBeneficiaries({
       setAlertInfo({
         open: true,
         color: 'red',
-        content: error
+        content: error.message
       })
     }
     setLoading(false)
@@ -71,10 +79,6 @@ export default function ListBeneficiaries({
                 key={head}
                 className={clsx(
                   "border-b border-white-100 bg-white-50 p-4",
-                  {
-                    // hide DID on mobile because I hate the scroll
-                    // 'hidden md:table-cell' : head === 'DID'
-                  }
                 )}
               >
                 <Typography
@@ -88,22 +92,12 @@ export default function ListBeneficiaries({
             ))}
           </tr>
         </thead>
-        {
-          !beneficiaries ? (
-            <BeneficiariesTableSkeleton />
-          ) 
-          :
-          beneficiaries && beneficiaries.length === 0 ? 
-          <div className="text-center flex justify-center">
-            <Typography variant="h6" color="white">
-              No beneficiaries saved
-            </Typography>
-          </div>
-          :
-          <tbody>
-            {beneficiaries.map(({ recordId, name, relationship, did }) => {
+        <tbody>
+          {
+            beneficiaries ?
+            beneficiaries.map(({ recordId, name, relationship, did }) => {
               const classes = "p-4 border-b border-white-50";
-
+  
               return (
                 <tr key={recordId}>
                   <td className={classes}>
@@ -145,9 +139,9 @@ export default function ListBeneficiaries({
                   </td>
                 </tr>
               );
-            })}
-          </tbody>
-        }
+            }) : ''
+          }
+        </tbody>
       </table>
 
       {/* CONFIRM REMOVE BENEFICIARY DIALOG */}

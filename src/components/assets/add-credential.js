@@ -6,8 +6,8 @@ import {
   Input,
   Textarea,
   Spinner,
+  Alert,
 } from "@material-tailwind/react"
-import CustomAlert from '@/components/alert';
 import { useContext, useEffect, useState } from "react";
 import { 
   addCredential, 
@@ -25,10 +25,8 @@ export default function AddCredential() {
   const [credentialType, setCredentialType] = useState('')
   const [credentialTitle, setCredentialTitle] = useState('')
   const [credentialContent, setCredentialContent] = useState('')
-  const [credentialTarget, setCredentialTarget] = useState('')
   const [attachment, setAttachment] = useState(null)
   const [isFormReady, setIsFormReady] = useState(false);
-  const [beneficiaries, setBeneficiaries] = useState([]);
   const [alertInfo, setAlertInfo] = useState({
     open: false,
     color: 'blue',
@@ -37,24 +35,12 @@ export default function AddCredential() {
 
   // FETCH BENEFICIARIES FOR FORM AND ENABLE SUBMIT AFTER FUNCTION RETURNS
   useEffect(() => {
-    if(!web5) return;
-    const fetchData = async () => {
-      try {
-        const beneficiariesData = await getBeneficiaries(web5);
-        setBeneficiaries(beneficiariesData || [])
-        setIsFormReady(true);
-      } catch (error) {
-        console.error(error)
-      }
-    };
-  
-    fetchData();
-  }, [web5]);
-
-  // CLICK ACTION HANDLERS
-  const getTargetDID = (e) => {
-    setCredentialTarget(e)
-  }
+    setIsFormReady((
+      web5 !== null) && 
+      credentialTitle.length > 0 && 
+      credentialType.length > 0
+    );
+  }, [web5, credentialTitle, credentialType]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -70,7 +56,7 @@ export default function AddCredential() {
 
       const vcData = {
         type: credentialType,
-        subject: credentialTarget,
+        subject: 'personal',
         title: credentialTitle,
         credentialContent: credentialContent,
         attachment: base64String,
@@ -88,7 +74,7 @@ export default function AddCredential() {
       setAlertInfo({
         open: true,
         color: 'red',
-        content: 'Failed to save asset'
+        content: error.message
       })
     }
     setLoading(false);
@@ -97,9 +83,15 @@ export default function AddCredential() {
   return (
     <form onSubmit={handleSubmit}>
       {/* ALERT OR SOMETHING, I'VE COMMENTED THIS EVERYWHERE AND I'M STARTING TO GET TIRED HONESTLY BUT I WON'T STOP */}
-      {
-        alertInfo.open && <CustomAlert alertInfo={alertInfo} />
-      }
+        <Alert
+          open={alertInfo.open}
+          onClose={() => {setAlertInfo({ open: false })}}
+          color={alertInfo.color}
+          className="my-5"
+          variant="outlined"
+        >
+          {alertInfo.content}
+        </Alert>
       <div className="mb-1 gap-10 grid lg:grid-cols-2">
         {/* ASSET TYPE (GROUP) */}
         <div>
@@ -116,46 +108,6 @@ export default function AddCredential() {
             <Option value='Legal Document'>Legal Document</Option>
             <Option value='Special Message'>Special Message</Option>
           </Select>
-        </div>
-         {/* TARGET BENEFICIARY OR PERSONAL ASSET */}
-        <div>
-          <Select
-            label="Target beneficiary"
-            size='lg'
-            color='orange'
-            className='text-white'
-            variant="static"
-            value={(e) => {e.textContent}}
-            onChange={getTargetDID}
-            required
-          >
-            <Option value="personal">PERSONAL</Option>
-            { beneficiaries ?
-              beneficiaries.map(data => (
-                <Option key={data.did} value={data.did}>
-                  {data.name}
-                </Option>
-              )) : ''}
-          </Select>
-          <Typography
-            variant="small"
-            color="gray"
-            className="mt-2 flex items-center gap-1 font-normal"
-          >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              className="-mt-px h-4 w-4"
-            >
-              <path
-                fillRule="evenodd"
-                d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12zm8.706-1.442c1.146-.573 2.437.463 2.126 1.706l-.709 2.836.042-.02a.75.75 0 01.67 1.34l-.04.022c-1.147.573-2.438-.463-2.127-1.706l.71-2.836-.042.02a.75.75 0 11-.671-1.34l.041-.022zM12 9a.75.75 0 100-1.5.75.75 0 000 1.5z"
-                clipRule="evenodd"
-              />
-            </svg>
-            Personal asset or for a beneficiary?
-          </Typography>
         </div>
         {/* ASSET TITLE */}
         <div>
@@ -229,7 +181,7 @@ export default function AddCredential() {
         <Button 
           className="flex items-center justify-center w-2/5 md:w-1/3 lg:w-1/3 mt-6 bg-black hover:bg-gray-800"
           fullWidth
-          disabled={!isFormReady}
+          disabled={!isFormReady || loading}
           type='submit'
         >
           {
