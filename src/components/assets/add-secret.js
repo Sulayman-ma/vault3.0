@@ -2,9 +2,9 @@ import {
   Typography,
   Button,
   Input,
-  Spinner
+  Spinner,
+  Alert
 } from "@material-tailwind/react"
-import CustomAlert from '@/components/alert';
 import { useState, useEffect, useContext } from 'react';
 import { addSecret } from '@/lib/crud';
 import { Web5Context } from '@/lib/contexts';
@@ -68,9 +68,15 @@ export default function AddSecret() {
       onSubmit={handleSubmit} 
       className='lg:w-1/2 m-auto'
     >
-      {
-        alertInfo.open && <CustomAlert alertInfo={alertInfo} />
-      }
+      <Alert 
+        open={alertInfo.open}
+        onClose={() => {setAlertInfo({ open: false })}}
+        color={alertInfo.color}
+        className="my-5"
+        variant="outlined"
+      >
+        {alertInfo.content}
+      </Alert>
       <div className="mb-1 grid gap-14">
         <Input
           size="lg"

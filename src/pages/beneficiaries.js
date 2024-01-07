@@ -13,7 +13,6 @@ import { useContext, useEffect, useState } from "react"
 import { Web5Context } from "@/lib/contexts"
 import { addBeneficiary, getBeneficiaries } from "@/lib/crud"
 import ListBeneficiaries from "@/components/beneficiaries/list-beneficiaries"
-import CustomAlert from "@/components/alert"
 import { DidIonMethod } from "@web5/dids"
 import { UserPlusIcon } from "@heroicons/react/24/solid"
 
@@ -31,7 +30,7 @@ export default function Page() {
   const [beneficiaries, setBeneficiaries] = useState([])
   const [alertInfo, setAlertInfo] = useState({
     open: false,
-    color: '',
+    color: 'blue',
     content: '',
   });
 
@@ -121,8 +120,8 @@ export default function Page() {
       <div className="w-[80%] md:w-[50%] lg:w-[40%] m-auto my-5 flex justify-center items-center">
         <Alert 
           open={alertInfo.open}
-          onClose={setAlertInfo({ open: false })}
-           color={alertInfo.color}
+          onClose={() => {setAlertInfo({ open: false })}}
+          color={alertInfo.color}
           className="my-5"
           variant="outlined"
         >
@@ -194,7 +193,7 @@ export default function Page() {
             <Button 
               className="flex items-center justify-center w-2/5 md:w-1/3 lg:w-1/3 mt-6 bg-black hover:bg-gray-800"
               fullWidth
-              disabled={!isFormReady}
+              disabled={!isFormReady || loading}
               type='submit'
             >
               {

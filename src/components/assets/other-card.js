@@ -9,6 +9,7 @@ import {
   DialogBody,
   DialogFooter,
   Tooltip,
+  Alert,
 } from "@material-tailwind/react"
 import {
   ArrowDownIcon,
@@ -22,7 +23,6 @@ import {
 } from "@/lib/crud"
 import { useContext, useEffect, useState } from "react"
 import { Web5Context } from "@/lib/contexts"
-import CustomAlert from "@/components/alert"
 import clsx from "clsx"
 
 export default function OtherCard({ assetData }) {
@@ -136,11 +136,15 @@ export default function OtherCard({ assetData }) {
       )}>
         {/* ALERT COMPONENT */}
         <div className="md:w-[60%] lg:w-[50%] m-auto my-5 flex justify-center items-center">
-          {
-            alertInfo.open 
-            && 
-            <CustomAlert alertInfo={alertInfo} />
-          }
+          <Alert 
+            open={alertInfo.open}
+            onClose={() => {setAlertInfo({ open: false })}}
+            color={alertInfo.color}
+            className="my-5"
+            variant="outlined"
+          >
+            {alertInfo.content}
+          </Alert>
         </div>
         
         {/* CARD BODY CONTENT */}

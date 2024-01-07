@@ -23,7 +23,6 @@ import {
 import { useContext, useState } from "react"
 import { Web5Context } from "@/lib/contexts"
 import { deleteRecord } from "@/lib/crud"
-import CustomAlert from "@/components/alert"
 import clsx from "clsx"
 
 export default function SecretCard({ assetData }) {   
@@ -128,7 +127,7 @@ export default function SecretCard({ assetData }) {
         <div className="md:w-[60%] lg:w-[50%] m-auto my-5 flex justify-center items-center">
           <Alert 
             open={alertInfo.open}
-            onClose={setAlertInfo({ open: false })}
+            onClose={() => {setAlertInfo({ open: false })}}
             color={alertInfo.color}
             className="my-5"
             variant="outlined"
