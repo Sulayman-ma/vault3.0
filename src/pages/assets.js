@@ -8,7 +8,8 @@ import {
   ListItem,
   IconButton,
   ListItemSuffix,
-  Spinner
+  Spinner,
+  Badge
 } from "@material-tailwind/react"
 import { renderDetailedCard } from "@/lib/render-cards";
 import { NewAssetMini } from "@/components/assets/mini-cards";
@@ -70,7 +71,7 @@ export default function Page() {
                 <MiniCardSkeleton />
               </>
             ) 
-            : 
+            :
             // data retrieved and list empty
             renderData && renderData.length === 0 ? (
               <div className="text-center flex justify-center">
@@ -82,26 +83,28 @@ export default function Page() {
             :
             // data retrieved with populated list
             renderData.map(({ group, records }, index) => (
-              <Accordion open={openAcc === index} key={index}>
-                <AccordionHeader 
-                  onClick={() => handleOpen(index)}
-                  className="text-white hover:text-gray-800"
-                >
-                  {group.toUpperCase()}
-                </AccordionHeader>
+              <Badge key={index} content={records.length} color="orange">
+                <Accordion open={openAcc === index}>
+                  <AccordionHeader 
+                    onClick={() => handleOpen(index)}
+                    className="text-white hover:text-gray-800"
+                  >
+                    {group.toUpperCase()}
+                  </AccordionHeader>
 
-                <AccordionBody className="text-white">
-                  {records.map((record, index) => (
-                    <div key={index}>
-                      <MiniCard
-                        assetData={record}
-                        setAsActive={setActiveCard}
-                        setLoading={setLoading}
-                      />
-                    </div>
-                  ))}
-                </AccordionBody>
-              </Accordion>
+                  <AccordionBody className="text-white">
+                    {records.map((record, index) => (
+                      <div key={index}>
+                        <MiniCard
+                          assetData={record}
+                          setAsActive={setActiveCard}
+                          setLoading={setLoading}
+                        />
+                      </div>
+                    ))}
+                  </AccordionBody>
+                </Accordion>
+              </Badge>
             ))
           }
           {/* MINI CARD TO ADD NEW ASSET */}
@@ -186,26 +189,28 @@ export default function Page() {
             ) 
             :
             renderData.map(({ group, records }, index) => (
-              <Accordion open={openAcc === index} key={index}>
-                <AccordionHeader 
-                  onClick={() => handleOpen(index)}
-                  className="text-white hover:text-gray-800"
-                >
-                  {group.toUpperCase()}
-                </AccordionHeader>
+              <Badge key={index} content={records.length} color="orange">
+                <Accordion open={openAcc === index}>
+                  <AccordionHeader 
+                    onClick={() => handleOpen(index)}
+                    className="text-white hover:text-gray-800"
+                  >
+                    {group.toUpperCase()}
+                  </AccordionHeader>
 
-                <AccordionBody className="text-white">
-                  {records.map((record, index) => (
-                    <div key={index}>
-                      <MiniCard
-                        assetData={record}
-                        setAsActive={setActiveCard}
-                        setLoading={setLoading}
-                      />
-                    </div>
-                  ))}
-                </AccordionBody>
-              </Accordion>
+                  <AccordionBody className="text-white">
+                    {records.map((record, index) => (
+                      <div key={index}>
+                        <MiniCard
+                          assetData={record}
+                          setAsActive={setActiveCard}
+                          setLoading={setLoading}
+                        />
+                      </div>
+                    ))}
+                  </AccordionBody>
+                </Accordion>
+              </Badge>
             ))
           }
         </Drawer>

@@ -7,6 +7,7 @@ import {
   Option,
   IconButton,
   Spinner,
+  Alert,
 } from "@material-tailwind/react"
 import { useContext, useEffect, useState } from "react"
 import { Web5Context } from "@/lib/contexts"
@@ -82,24 +83,22 @@ export default function Page() {
         benDid: benDid,
         benRelationship: benRelationship
       }
-      const status = await addBeneficiary(web5, recordData);
+      const code = await addBeneficiary(web5, recordData);
 
       setAlertInfo({
         open: true,
-        color: 'green',
-        content: 'Beneficiary added'
+        color: `${code === 202 ? 'green' : 'red'}`,
+        content: `${code === 202 ? 'Beneficiary added' : 'Failed to add'}`
       })
     } catch (error) {
       console.error(error)
       setAlertInfo({
         open: true,
         color: 'red',
-        content: error
+        content: 'Operation failed, please check your connection'
       })
     }
-    setTimeout(() => {
-      setOpenDialog(false)
-    }, 4000);
+    setOpenDialog(false)
     setLoading(false)
   };
 
@@ -120,9 +119,15 @@ export default function Page() {
 
       {/* SHARED ALERT FOR BOTH COMPONENTS */}
       <div className="w-[80%] md:w-[50%] lg:w-[40%] m-auto my-5 flex justify-center items-center">
-        {
-          alertInfo.open && <CustomAlert alertInfo={alertInfo} />
-        }
+        <Alert 
+          open={alertInfo.open}
+          onClose={setAlertInfo({ open: false })}
+           color={alertInfo.color}
+          className="my-5"
+          variant="outlined"
+        >
+          {alertInfo.content}
+        </Alert>
       </div>
 
       {/* BENEFICIARIES TABLE */}
@@ -153,10 +158,8 @@ export default function Page() {
               variant="static"
               placeholder="John Trabajo Joe"
               type='text'
+              required
               className="!border-white focus:!border-orange-400 text-white"
-              labelProps={{
-                className: "before:content-none after:content-none",
-              }}
               onChange={(e) => setBenName(e.target.value)}
             />
             <Input
@@ -167,6 +170,7 @@ export default function Page() {
               color="orange"
               variant="static"
               readOnly
+              required
               className="!border-white focus:!border-orange-400 text-white"
               value={benDid}
               onChange={(e) => setBenDid(e.target.value)}

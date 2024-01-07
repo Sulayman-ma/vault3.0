@@ -9,8 +9,8 @@ export default function CustomAlert({ alertInfo }) {
 
   return (
     <Alert 
-      open={localOpen}
-      onClose={dismiss}
+      open={alertInfo.open}
+      onClose={setAlertInfo({ open: false })}
       color={alertInfo.color}
       className="my-5"
       variant="outlined"

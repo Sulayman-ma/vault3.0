@@ -11,6 +11,7 @@ import {
   DialogBody,
   DialogFooter,
   Tooltip,
+  Alert,
 } from "@material-tailwind/react"
 import {
   ArrowDownIcon,
@@ -19,22 +20,18 @@ import {
   PencilIcon, 
   TrashIcon 
 } from "@heroicons/react/24/solid"
-import { useContext, useEffect, useState } from "react"
+import { useContext, useState } from "react"
 import { Web5Context } from "@/lib/contexts"
-import { 
-  deleteRecord, 
-  getFileInfo 
-} from "@/lib/crud"
+import { deleteRecord } from "@/lib/crud"
 import CustomAlert from "@/components/alert"
-import Link from "next/link"
+import clsx from "clsx"
 
 export default function SecretCard({ assetData }) {   
   // WEB5 CONTEXT AND ASSET GROUP
   const { web5 } = useContext(Web5Context)
 
   // COMPONENT STATES
-  const [download, setDownload] = useState('')
-  const [extension, setExtension] = useState(null)
+  const [deleted, setDeleted] = useState(false)
   const [revealed, setRevealed] = useState(false)
   const [openDialog, setOpenDialog] = useState(false);
   const [alertInfo, setAlertInfo] = useState({
@@ -43,20 +40,31 @@ export default function SecretCard({ assetData }) {
     content: '',
   });
 
-  // SET DOWNLOAD LINK
-  useEffect(() => {
-    if (!assetData.attachment) return
-    async function setDownloadLink() {
-      const data = getFileInfo(assetData.attachment)
-      setDownload(data.url)
-      setExtension(data.extension)
-    }
-
-    setDownloadLink()
-  })
-
   // REVEAL SECRET FOR PASSWORDS
   const revealSecret = () => { setRevealed(!revealed) }
+
+  // DOWNLOAD ASSET ATTACHMENT
+  const downloadFile = async () => {
+    const base64String = assetData.claim.attachment
+
+    const file = await convertBase64ToFile(base64String, assetData.claim.title)
+
+    const temp = window.URL.createObjectURL(file)
+
+    // creating download anchor
+    const anchor = document.createElement('a');
+    anchor.href = temp;
+    anchor.download = file.name;
+    anchor.style.display = 'none';
+    document.body.appendChild(anchor);
+
+    // simulating click to download
+    anchor.click();
+
+    // remove anchor
+    document.body.removeChild(anchor);
+    return
+  }
 
   // SWAP DISPLAY TO ASSET EDITING
   const swapDisplay = () => { return }
@@ -64,29 +72,23 @@ export default function SecretCard({ assetData }) {
   // DELETE ASSET
   const deleteAsset = async () => {
     try {
-      const response = await deleteRecord(web5, assetData.recordId)
+      const code = await deleteRecord(web5, assetData.recordId)
       setOpenDialog(false);
-      console.info(response.status)
-      if (response.status.code == 202) {
-        setAlertInfo({
-          open: true,
-          color: 'green',
-          content: 'Asset deleted'
-        })
-      } else {
-        setAlertInfo({
-          open: true,
-          color: 'red',
-          content: 'Failed to delete asset'
-        })
-      }
+
+      setAlertInfo({
+        open: true,
+        color: `${code === 202 ? 'green' : 'red'}`,
+        content: `${code === 202 ? 'Asset deleted' : 'Failed to delete asset'}`
+      })
     } catch (error) {
       setAlertInfo({
         open: true,
         color: 'red',
-        content: error
+        content: 'Failed to delete asset'
       })
     }
+    // hide content body after delete
+    setDeleted(true)
   }
 
   return (
@@ -118,12 +120,21 @@ export default function SecretCard({ assetData }) {
       </CardHeader> 
 
       {/* CARD BODY */}
-      <CardBody className="w-full text-white">
+      <CardBody className={clsx(
+        "w-full text-white",
+        { 'hidden' : deleted }
+      )}>
         {/* ALERT COMPONENT */}
         <div className="md:w-[60%] lg:w-[50%] m-auto my-5 flex justify-center items-center">
-        {
-          alertInfo.open && <CustomAlert alertInfo={alertInfo} />
-        }
+          <Alert 
+            open={alertInfo.open}
+            onClose={setAlertInfo({ open: false })}
+            color={alertInfo.color}
+            className="my-5"
+            variant="outlined"
+          >
+            {alertInfo.content}
+          </Alert>
         </div>
         
         {/* CARD BODY CONTENT */}
@@ -156,20 +167,14 @@ export default function SecretCard({ assetData }) {
         </div>
         {
           assetData.attachment && download ? (
-            <Link
-              href={download}
-              download={`secret_${assetData.account_name}.${extension}`}
-            >
-              Download attachment
-              <IconButton
-                color="transparent" 
-                ripple={false}
-                className="mt-1 text-center"
-              >
-                <ArrowDownIcon className="w-6 h-6" />
-              </IconButton>
-            </Link>
-            
+          <IconButton
+            color="transparent"
+            ripple={true}
+            className="mt-1 text-center"
+            onClick={downloadFile}
+          >
+            <ArrowDownIcon className="w-6 h-6" />
+          </IconButton>
           ) : ''
         }
       </CardBody>
@@ -197,6 +202,21 @@ export default function SecretCard({ assetData }) {
             Delete
           </Button>
         </DialogFooter>
+      </Dialog>
+
+      {/* EDIT ASSET DIALOG FORM */}
+      <Dialog 
+        size="md"
+        open={editDialog}
+        handler={() => {setEditDialog(!editDialog)}}
+        className="bg-gray-900 p-10"
+      >
+        <form 
+          className="mt-8 mb-2 mx-auto w-full min-w-[15rem] max-w-[24rem]"
+          onSubmit={handleSubmit}
+        >
+          
+        </form>
       </Dialog>
     </>
   )

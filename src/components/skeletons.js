@@ -18,3 +18,28 @@ export function MiniCardSkeleton() {
     </Card>
   )
 }
+
+export function BeneficiariesTableSkeleton() {
+  return (
+    <tbody className="animate-pulse">
+      <tr className="w-full">
+        <td className="bg-gray-800 w-[90%] m-auto">&nbsp;</td>
+        <td className="bg-gray-800 w-[90%] m-auto">&nbsp;</td>
+        <td className="bg-gray-800 w-[90%] m-auto">&nbsp;</td>
+        <td className="bg-gray-800 w-[90%] m-auto">&nbsp;</td>
+      </tr>
+      <tr className="w-full">
+        <td className="bg-gray-800 w-[90%] m-auto">&nbsp;</td>
+        <td className="bg-gray-800 w-[90%] m-auto">&nbsp;</td>
+        <td className="bg-gray-800 w-[90%] m-auto">&nbsp;</td>
+        <td className="bg-gray-800 w-[90%] m-auto">&nbsp;</td>
+      </tr>
+      <tr className="w-full">
+        <td className="bg-gray-800 w-[90%] m-auto">&nbsp;</td>
+        <td className="bg-gray-800 w-[90%] m-auto">&nbsp;</td>
+        <td className="bg-gray-800 w-[90%] m-auto">&nbsp;</td>
+        <td className="bg-gray-800 w-[90%] m-auto">&nbsp;</td>
+      </tr>
+    </tbody>
+  )
+}

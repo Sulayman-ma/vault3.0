@@ -15,14 +15,15 @@ import {
   PencilIcon, 
   TrashIcon 
 } from "@heroicons/react/24/solid"
-import { useContext, useEffect, useState } from "react"
-import { Web5Context } from "@/lib/contexts"
 import { 
   convertBase64ToFile,
   deleteRecord, 
   getBenByDid, 
 } from "@/lib/crud"
+import { useContext, useEffect, useState } from "react"
+import { Web5Context } from "@/lib/contexts"
 import CustomAlert from "@/components/alert"
+import clsx from "clsx"
 
 export default function OtherCard({ assetData }) {
   // WEB5 CONTEXT AND ASSET GROUP
@@ -30,7 +31,7 @@ export default function OtherCard({ assetData }) {
   const group = assetData.group
 
   // COMPONENT STATES
-  // const [fileName, setFileName] = useState(null)
+  const [deleted, setDeleted] = useState(false)
   const [benName, setBenName] = useState(null)
   const [openDialog, setOpenDialog] = useState(false);
   const [alertInfo, setAlertInfo] = useState({
@@ -52,12 +53,12 @@ export default function OtherCard({ assetData }) {
     getBenName()
   }, [web5, assetData])
 
+  // DOWNLOAD ASSET ATTACHMENT
   const downloadFile = async () => {
     const base64String = assetData.claim.attachment
 
     const file = await convertBase64ToFile(base64String, assetData.claim.title)
 
-    // console.info('Creating the file download URL...')
     const temp = window.URL.createObjectURL(file)
 
     // creating download anchor
@@ -72,38 +73,32 @@ export default function OtherCard({ assetData }) {
 
     // remove anchor
     document.body.removeChild(anchor);
-    // console.info('Download complete!')
     return
   }
 
   // SWAP DISPLAY TO ASSET EDITING
-  const swapDisplay = () => { return }
+  const editAsset = () => { return }
 
   // DELETE ASSET
   const deleteAsset = async () => {
     try {
-      const response = await deleteRecord(web5, assetData.recordId)
+      const code = await deleteRecord(web5, assetData.recordId)
       setOpenDialog(false);
-      if (response.status.code == 202) {
-        setAlertInfo({
-          open: true,
-          color: 'green',
-          content: 'Asset deleted'
-        })
-      } else {
-        setAlertInfo({
-          open: true,
-          color: 'red',
-          content: 'Failed to delete asset'
-        })
-      }
+
+      setAlertInfo({
+        open: true,
+        color: `${code === 202 ? 'green' : 'red'}`,
+        content: `${code === 202 ? 'Asset deleted' : 'Failed to delete asset'}`
+      })
     } catch (error) {
       setAlertInfo({
         open: true,
         color: 'red',
-        content: error
+        content: 'Failed to delete asset'
       })
     }
+    // hide content body after delete
+    setDeleted(true)
   }
 
   return (
@@ -122,7 +117,7 @@ export default function OtherCard({ assetData }) {
         {/* EDIT AND DELETE ICONS */}
         <div className="flex flex-row gap-2">
           <Tooltip content="Edit asset">
-            <IconButton onClick={swapDisplay} className="text-blue-400">
+            <IconButton onClick={editAsset} className="text-blue-400">
               <PencilIcon className="w-8 h-8" />
             </IconButton>
           </Tooltip>
@@ -135,7 +130,10 @@ export default function OtherCard({ assetData }) {
       </CardHeader> 
       
       {/* CARD BODY */}
-      <CardBody className="relative w-full text-white">
+      <CardBody className={clsx(
+        "relative w-full text-white",
+        { 'hidden' : deleted }
+      )}>
         {/* ALERT COMPONENT */}
         <div className="md:w-[60%] lg:w-[50%] m-auto my-5 flex justify-center items-center">
           {

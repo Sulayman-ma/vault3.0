@@ -12,6 +12,7 @@ import { useState, useContext } from "react";
 import { Web5Context } from "@/lib/contexts";
 import { deleteRecord } from "@/lib/crud";
 import clsx from "clsx";
+import { BeneficiariesTableSkeleton } from "../skeletons";
 
 export default function ListBeneficiaries({ 
   beneficiaries, 
@@ -87,53 +88,66 @@ export default function ListBeneficiaries({
             ))}
           </tr>
         </thead>
-        <tbody>
-          {beneficiaries.map(({ recordId, name, relationship, did }) => {
-            const classes = "p-4 border-b border-white-50";
- 
-            return (
-              <tr key={recordId}>
-                <td className={classes}>
-                  <Typography
-                    variant="paragraph"
-                    color="white"
-                    className="font-semibold"
-                  >
-                    {name}
-                  </Typography>
-                </td>
-                <td className={`${classes}`}>
-                  <Typography
-                    variant="paragraph"
-                    color="white"
-                    className="font-semibold"
-                  >
-                    {did ? (did.substring(0, 20) + '...') : 'No DID'}
-                  </Typography>
-                </td>
-                <td className={classes}>
-                  <Typography
-                    variant="paragraph"
-                    color="white"
-                    className="font-semibold"
-                  >
-                    {relationship}
-                  </Typography>
-                </td>
-                <td className={classes}>
-                  <Button
-                    variant="gradient"
-                    color="red"
-                    className="font-medium"
-                    onClick={() => {handleRemove(name, recordId)}}
-                  >
-                    Remove
-                  </Button>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
+        {
+          !beneficiaries ? (
+            <BeneficiariesTableSkeleton />
+          ) 
+          :
+          beneficiaries && beneficiaries.length === 0 ? 
+          <div className="text-center flex justify-center">
+            <Typography variant="h6" color="white">
+              No beneficiaries saved
+            </Typography>
+          </div>
+          :
+          <tbody>
+            {beneficiaries.map(({ recordId, name, relationship, did }) => {
+              const classes = "p-4 border-b border-white-50";
+
+              return (
+                <tr key={recordId}>
+                  <td className={classes}>
+                    <Typography
+                      variant="paragraph"
+                      color="white"
+                      className="font-semibold"
+                    >
+                      {name}
+                    </Typography>
+                  </td>
+                  <td className={`${classes}`}>
+                    <Typography
+                      variant="paragraph"
+                      color="white"
+                      className="font-semibold"
+                    >
+                      {did ? (did.substring(0, 20) + '...') : 'No DID'}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Typography
+                      variant="paragraph"
+                      color="white"
+                      className="font-semibold"
+                    >
+                      {relationship}
+                    </Typography>
+                  </td>
+                  <td className={classes}>
+                    <Button
+                      variant="gradient"
+                      color="red"
+                      className="font-medium"
+                      onClick={() => {handleRemove(name, recordId)}}
+                    >
+                      Remove
+                    </Button>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        }
       </table>
 
       {/* CONFIRM REMOVE BENEFICIARY DIALOG */}

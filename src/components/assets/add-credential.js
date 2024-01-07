@@ -41,7 +41,7 @@ export default function AddCredential() {
     const fetchData = async () => {
       try {
         const beneficiariesData = await getBeneficiaries(web5);
-        setBeneficiaries(beneficiariesData)
+        setBeneficiaries(beneficiariesData || [])
         setIsFormReady(true);
       } catch (error) {
         console.error(error)
@@ -52,7 +52,7 @@ export default function AddCredential() {
   }, [web5]);
 
   // CLICK ACTION HANDLERS
-  const catchTarget = (e) => {
+  const getTargetDID = (e) => {
     setCredentialTarget(e)
   }
 
@@ -125,16 +125,17 @@ export default function AddCredential() {
             color='orange'
             className='text-white'
             variant="static"
-            value={credentialTarget}
-            onChange={catchTarget}
+            value={(e) => {e.textContent}}
+            onChange={getTargetDID}
             required
           >
             <Option value="personal">PERSONAL</Option>
-            {beneficiaries.map(data => (
-              <Option key={data.did} value={data.did}>
-                {data.name}
-              </Option>
-            ))}
+            { beneficiaries ?
+              beneficiaries.map(data => (
+                <Option key={data.did} value={data.did}>
+                  {data.name}
+                </Option>
+              )) : ''}
           </Select>
           <Typography
             variant="small"
@@ -180,9 +181,6 @@ export default function AddCredential() {
             className="!border-white !focus:border-orange-400 text-white"
             variant="static"
             color="orange"
-            labelProps={{
-              className: "text-white",
-            }}
             value={credentialContent}
             onChange={(e) => setCredentialContent(e.target.value)}
           />
@@ -195,9 +193,7 @@ export default function AddCredential() {
             label="Attachment (optional)"
             type="file"
             className="border-none text-white"
-            labelProps={{
-              className: "before:content-none after:content-none",
-            }}
+            color="orange"
             accept="image/jpeg, image/jpg, image/png, text/plain, application/pdf"
             onChange={(e) => setAttachment(e.target.files[0])}
           />

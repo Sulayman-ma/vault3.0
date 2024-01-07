@@ -1,4 +1,4 @@
-import { ListItem, Typography } from "@material-tailwind/react";
+import { Typography } from "@material-tailwind/react";
 import Link from "next/link";
 
 export default function Home() {
@@ -7,7 +7,7 @@ export default function Home() {
       <Typography variant="h6" color="white">
         Here at the home page
       </Typography>
-      <Link href="/vault" className="bg-gray-900 py-3 px-4 text-orange-400 rounded-lg">
+      <Link href="/assets" className="bg-gray-900 py-3 px-4 text-orange-400 rounded-lg">
         GET STARTED
       </Link>
     </div>
