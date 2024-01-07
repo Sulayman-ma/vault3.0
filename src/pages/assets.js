@@ -19,7 +19,6 @@ import { getAssets } from "@/lib/crud";
 import { MiniCardSkeleton } from "@/components/skeletons";
 import { PlusCircleIcon, Square3Stack3DIcon } from "@heroicons/react/24/solid";
 import { MiniCard } from "@/components/assets/mini-cards";
-import { BlankCard } from "@/components/assets/detailed-cards";
 
 export default function Page() {
   // WEB5 CONTEXT AND WHATNOT
@@ -241,7 +240,7 @@ export default function Page() {
       <div className="flex-1">
         <Card
           shadow={false}
-          className="flex justify-center items-center w-full lg:ml-5 bg-gray-900 text-white min-h-[17rem] mb-20"
+          className="flex justify-center items-center w-full lg:ml-5 bg-zinc-900 border-zinc-100 text-white min-h-[17rem] mb-20"
         >
           {
             loading ?

@@ -70,109 +70,123 @@ export default function ListBeneficiaries({ setAlertInfo }) {
   const TABLE_HEAD = ['Name', 'DID', 'Relationship', '']
 
   return (
-    <Card color="transparent" className="h-full overflow-y-auto">
-      <table className="m-auto w-[20rem] md:w-80% table-auto text-left">
-        <thead>
-          <tr>
-            {TABLE_HEAD.map((head) => (
-              <th
-                key={head}
-                className={clsx(
-                  "border-b border-white-100 bg-white-50 p-4",
-                )}
-              >
-                <Typography
-                  variant="paragraph"
-                  color="white"
-                  className="font-semibold leading-none opacity-70"
-                >
-                  {head}
-                </Typography>
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {
-            beneficiaries ?
-            beneficiaries.map(({ recordId, name, relationship, did }) => {
-              const classes = "p-4 border-b border-white-50";
-  
-              return (
-                <tr key={recordId}>
-                  <td className={classes}>
+    <>
+      {
+        !beneficiaries ?
+        <div className="flex justify-center items-center">
+          <Spinner className="w-30 h-30" color="orange" />
+        </div>
+        :
+        beneficiaries && beneficiaries.length > 0 ? (
+        <Card color="transparent" className="h-full overflow-y-auto">
+          <table className="m-auto w-[20rem] md:w-80% table-auto text-left">
+            <thead>
+              <tr>
+                {TABLE_HEAD.map((head) => (
+                  <th
+                    key={head}
+                    className={clsx(
+                      "border-b border-white-100 bg-white-50 p-4",
+                    )}
+                  >
                     <Typography
                       variant="paragraph"
                       color="white"
-                      className="font-semibold"
+                      className="font-semibold leading-none opacity-70"
                     >
-                      {name}
+                      {head}
                     </Typography>
-                  </td>
-                  <td className={`${classes}`}>
-                    <Typography
-                      variant="paragraph"
-                      color="white"
-                      className="font-semibold"
-                    >
-                      {did ? (did.substring(0, 20) + '...') : 'No DID'}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Typography
-                      variant="paragraph"
-                      color="white"
-                      className="font-semibold"
-                    >
-                      {relationship}
-                    </Typography>
-                  </td>
-                  <td className={classes}>
-                    <Button
-                      variant="gradient"
-                      color="red"
-                      className="font-medium"
-                      onClick={() => {handleRemove(name, recordId)}}
-                    >
-                      Remove
-                    </Button>
-                  </td>
-                </tr>
-              );
-            }) : ''
-          }
-        </tbody>
-      </table>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+            {
+              beneficiaries.map(({ recordId, name, relationship, did }) => {
+                const classes = "p-4 border-b border-white-50";
+    
+                return (
+                  <tr key={recordId}>
+                    <td className={classes}>
+                      <Typography
+                        variant="paragraph"
+                        color="white"
+                        className="font-semibold"
+                      >
+                        {name}
+                      </Typography>
+                    </td>
+                    <td className={`${classes}`}>
+                      <Typography
+                        variant="paragraph"
+                        color="white"
+                        className="font-semibold"
+                      >
+                        {did ? (did.substring(0, 20) + '...') : 'No DID'}
+                      </Typography>
+                    </td>
+                    <td className={classes}>
+                      <Typography
+                        variant="paragraph"
+                        color="white"
+                        className="font-semibold"
+                      >
+                        {relationship}
+                      </Typography>
+                    </td>
+                    <td className={classes}>
+                      <Button
+                        variant="gradient"
+                        color="red"
+                        className="font-medium"
+                        onClick={() => {handleRemove(name, recordId)}}
+                      >
+                        Remove
+                      </Button>
+                    </td>
+                  </tr>
+                );
+              })
+            }
+            </tbody>
+          </table>
+        </Card>
+        ) 
+        : 
+        <Typography variant="h3" color="white">
+          No beneficiaries saved
+        </Typography>
+      }
 
       {/* CONFIRM REMOVE BENEFICIARY DIALOG */}
       <Dialog open={openDialog} handler={() => setOpenDialog(!openDialog)}>
-        <DialogHeader color="red">Remove Beneficiary</DialogHeader>
-        <DialogBody>
-        {
-            loading ? 
-            <Spinner color="orange" className="w-30 h-30" />
-            : 
-            'Are you sure you want to remove {removeData.benName} from list?'
-          }
-        </DialogBody>
-        <DialogFooter>
-          <Button
-            variant="text"
-            color="black"
-            onClick={() => setOpenDialog(false)}
-            className="mr-1"
-          >
-            Cancel
-          </Button>
-          <Button
-            variant="gradient"
-            color="red"
-            onClick={removeBeneficiary}
-          >
-            Remove
-          </Button>
-        </DialogFooter>
-      </Dialog>
-    </Card>
+            <DialogHeader color="red">Remove Beneficiary</DialogHeader>
+            <DialogBody>
+            {
+                loading ? 
+                <Spinner color="orange" className="w-30 h-30" />
+                : 
+                'Are you sure you want to remove {removeData.benName} from list?'
+              }
+            </DialogBody>
+            <DialogFooter>
+              <Button
+                variant="text"
+                color="black"
+                onClick={() => setOpenDialog(false)}
+                className="mr-1"
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="gradient"
+                color="red"
+                onClick={removeBeneficiary}
+              >
+                Remove
+              </Button>
+            </DialogFooter>
+          </Dialog>
+    </>
   )
 }
