@@ -16,7 +16,7 @@ import {
 import Link from "next/link"
 import { useEffect, useState } from "react"
 
-export function MiniCard({ setAsActive, assetData, setLoading }) {
+export function MiniCard({ setAsActive, assetData, setLoading, setBlank }) {
   const [header, setHeader] = useState('')
   const [title, setTitle] = useState('')
   const [attachment, setAttachment] = useState(false)
@@ -45,6 +45,7 @@ export function MiniCard({ setAsActive, assetData, setLoading }) {
           assetData: assetData
         });
         setLoading(true)
+								setBlank(false)
       }}
       href=""
     >
@@ -101,7 +102,8 @@ export function NewAssetMini({ setAsActive }) {
         onClick={() => {
             setAsActive({
             group: 'new_asset',
-          })
+          });
+										setBlank(false)
         }
       } 
       href=""
