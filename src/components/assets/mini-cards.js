@@ -45,6 +45,7 @@ export function MiniCard({ setAsActive, assetData, setLoading }) {
           assetData: assetData
         });
         setLoading(true)
+								setBlank(false)
       }}
       href=""
     >
@@ -101,7 +102,8 @@ export function NewAssetMini({ setAsActive }) {
         onClick={() => {
             setAsActive({
             group: 'new_asset',
-          })
+          });
+										setBlank(false)
         }
       } 
       href=""
