@@ -16,7 +16,7 @@ import {
 import Link from "next/link"
 import { useEffect, useState } from "react"
 
-export function MiniCard({ setAsActive, assetData, set Loading, setBlank }) {
+export function MiniCard({ setAsActive, assetData, setLoading, setBlank }) {
   const [header, setHeader] = useState('')
   const [title, setTitle] = useState('')
   const [attachment, setAttachment] = useState(false)
