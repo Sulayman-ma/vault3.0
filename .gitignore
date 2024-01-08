@@ -34,3 +34,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# ignoring the layout that connects to web5
+# because main is for local dev and vercel is for deployment
+/src/components/vault-layout.js
