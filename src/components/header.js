@@ -21,10 +21,10 @@ export default function Header() {
       {/* WIDE NAVIGATION */}
       <div className="hidden md:flex flex-row p-1 mb-0 w-full justify-center">
         <List className="text-white flex flex-row">
-          <Link href="/assets">
+          <Link href="/">
             <ListItem 
               className="text-gray-200 hover:bg-gray-500 hover:text-gray-200 focus:text-gray-200 focus:bg-gray-500"
-              selected={pathname === '/assets' ? true : false} 
+              selected={pathname === '/' ? true : false} 
             >
               <ListItemPrefix>
                 <HomeIcon className="h-5 w-5" />
@@ -50,10 +50,10 @@ export default function Header() {
       {/* MOBILE BOTTOM NAVIGATION */}
       <div className="md:hidden">
         <List className="fixed w-full bottom-0 z-10 text-white flex flex-row justify-evenly px-3 bg-black py-1">
-          <Link href="/assets">
+          <Link href="/">
             <ListItem 
               className="text-gray-200 hover:bg-gray-500 hover:text-gray-200 focus:text-gray-200 focus:bg-gray-500"
-              selected={pathname === '/assets' ? true : false} 
+              selected={pathname === '/' ? true : false} 
             >
               <HomeIcon className="h-7 w-7" />
             </ListItem>

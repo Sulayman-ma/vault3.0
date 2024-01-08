@@ -15,16 +15,12 @@ import {
   Popover,
   PopoverHandler,
   PopoverContent,
-  ListItem,
-  List
 } from "@material-tailwind/react"
 import {
   ArrowDownIcon,
   EllipsisHorizontalIcon,
   EyeIcon,
   EyeSlashIcon,
-  PencilIcon, 
-  TrashIcon 
 } from "@heroicons/react/24/solid"
 import { useContext, useState } from "react"
 import { Web5Context } from "@/lib/contexts"
@@ -39,25 +35,19 @@ export default function SecretCard({ assetData, updateAsset, setBlank }) {
   const [revealed, setRevealed] = useState(false)
   const [openDialog, setOpenDialog] = useState(false);
   const [editDialog, setEditDialog] = useState(false);
+  const [formData, setFormData] = useState({ ...assetData })
   const [alertInfo, setAlertInfo] = useState({
     open: false,
     color: 'blue',
     content: '',
   });
-  const [formData, setFormData] = useState({
-    platform: assetData.platform,
-    account_name: assetData.account_name,
-    phrase: assetData.phrase,
-    recordId: assetData.recordId,
-    group: assetData.group,
-  })
 
   // CAPTURE FORM DATA
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: value,
+      [name]: value.trim(),
     });
   };
 
@@ -92,17 +82,20 @@ export default function SecretCard({ assetData, updateAsset, setBlank }) {
     e.preventDefault();
     setLoading(true)
     try {
+      const { recordId, ...newStuff } = formData
       // carry out dwn update
-      const code = await updateRecord(web5, formData)
-
+      const code = await updateRecord(web5, newStuff, recordId)
+      
       setAlertInfo({
         open: true,
         color: `${code === 202 ? 'green' : 'red'}`,
         content: `${code === 202 ? 'Asset updated' : 'Update failed'}`
       })
-      // update asset data prop and get it to rerender
-      updateAsset(formData)
+
+      // update asset data
+      updateAsset(formData.group, { ...newStuff })
     } catch (error) {
+      console.log(error)
       setAlertInfo({
         open: true,
         color: 'red',
@@ -124,6 +117,9 @@ export default function SecretCard({ assetData, updateAsset, setBlank }) {
         color: `${code === 202 ? 'green' : 'red'}`,
         content: `${code === 202 ? 'Asset deleted' : 'Failed to delete asset'}`
       })
+
+      setBlank(true)
+      updateAsset({ group: 'blank', assetData: {} })
     } catch (error) {
       setAlertInfo({
         open: true,
@@ -131,8 +127,6 @@ export default function SecretCard({ assetData, updateAsset, setBlank }) {
         content: error.message
       })
     }
-    // set asset canvas to blank
-    setBlank(true)
   }
 
   return (
@@ -200,7 +194,7 @@ export default function SecretCard({ assetData, updateAsset, setBlank }) {
             PHRASE :  
             {revealed ? 
               <span className="text-orange-400"> 
-                  {assetData.phrase}
+                 {` ${assetData.phrase}`}
               </span> 
               : 
               ' ********'
@@ -323,7 +317,10 @@ export default function SecretCard({ assetData, updateAsset, setBlank }) {
                 'save changes'
               }
             </Button>
-            <Button disabled={loading} onClick={() => {setEditDialog(false)}}>
+            <Button 
+              disabled={loading} 
+              onClick={() => {setEditDialog(false)}}
+            >
               Cancel
             </Button>
           </div>

@@ -20,8 +20,6 @@ import {
 import {
   ArrowDownIcon,
   EllipsisHorizontalIcon,
-  PencilIcon, 
-  TrashIcon 
 } from "@heroicons/react/24/solid"
 import { 
   convertBase64ToFile,
@@ -32,13 +30,12 @@ import {
 import { useContext, useEffect, useState } from "react"
 import { Web5Context } from "@/lib/contexts"
 
-export default function OtherCard({ assetData, updateAsset, setBlank }) {
+export default function OtherCard({ assetData, updateAsset }) {
   // WEB5 CONTEXT AND ASSET GROUP
-  const { web5 } = useContext(Web5Context)
+  const { web5, myDid } = useContext(Web5Context)
 
   // COMPONENT STATES
   const [loading, setLoading] = useState(false)
-  const [benName, setBenName] = useState(null)
   const [openDialog, setOpenDialog] = useState(false);
   const [editDialog, setEditDialog] = useState(false);
   const [alertInfo, setAlertInfo] = useState({
@@ -84,13 +81,28 @@ export default function OtherCard({ assetData, updateAsset, setBlank }) {
   };
 
   // EDIT ASSET
-  const editAsset = async () => {
+  const editAsset = async (e) => {
+    e.preventDefault()
     setLoading(true)
     try {
+      console.info(assetData.recordId)
       const { title, credentialContent, ...unchanged } = assetData.claim
-      const newData = {...formData, ...unchanged}
+      const newData = {
+        ...formData, 
+        ...unchanged, 
+        recordId: assetData.recordId
+      }
+      const updatedData = {
+        claim: {
+          title: title,
+          credentialContent: credentialContent,
+          ...newData
+        }
+      }
+
+      console.info(updatedData)
       // carry out dwn update
-      const code = await updateCredential(web5, newData)
+      const code = await updateCredential(web5, newData, myDid)
 
       setAlertInfo({
         open: true,
@@ -98,7 +110,7 @@ export default function OtherCard({ assetData, updateAsset, setBlank }) {
         content: `${code === 202 ? 'Asset updated' : 'Update failed'}`
       })
       // update asset data prop and get it to rerender
-      updateAsset(newData)
+      updateAsset({group: assetData.group, newData: updatedData})
     } catch (error) {
       setAlertInfo({
         open: true,
@@ -121,9 +133,8 @@ export default function OtherCard({ assetData, updateAsset, setBlank }) {
         color: `${code === 202 ? 'green' : 'red'}`,
         content: `${code === 202 ? 'Asset deleted' : 'Failed to delete asset'}`
       })
-      
-      // reset asset canvas to blank
-      setBlank(true)
+
+      updateAsset({ group: '' })
     } catch (error) {
       setAlertInfo({
         open: true,

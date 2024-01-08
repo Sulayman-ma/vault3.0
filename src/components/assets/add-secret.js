@@ -41,9 +41,9 @@ export default function AddSecret() {
     try {
       const timestamp = new Date(Date.now()).toISOString();
       const recordData = {
-        account_name: accountName,
+        account_name: accountName.trim(),
         phrase: phrase,
-        platform: platform,
+        platform: platform.trim(),
         created: timestamp
       }
       const record = await addSecret(web5, recordData);

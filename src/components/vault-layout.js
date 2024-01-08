@@ -2,13 +2,20 @@ import Header from "@/components/header";
 import { useEffect, useState } from "react";
 import { Web5Context } from "@/lib/contexts";
 import { configureProtocol } from "@/lib/protocols";
-import RootLayout from "@/components/root-layout";
 import { Square3Stack3DIcon } from "@heroicons/react/24/solid";
 import { Spinner } from "@material-tailwind/react";
+import { Poppins } from 'next/font/google';
+
+const poppins = Poppins({ 
+  subsets: ['latin'],
+  weight: '400',
+  preload: true,
+})
 
 export default function VaultLayout({ children }) {
   const [web5, setWeb5] = useState(null)
   const [myDid, setMyDid] = useState(null)
+
 
   // connecting to web5 and retaining Web5 object for usage
   useEffect(() => {
@@ -32,12 +39,12 @@ export default function VaultLayout({ children }) {
   }, []);
 
   return (
-    <RootLayout>
-      {/* APP LOADING LOGO STUFF */}
+    <main className={`${poppins.className}`}>
+      {/* APP LOADING ANIMATION ON MAIN LAYOUT */}
       {
         !web5 ?
         (<div className="flex flex-col gap-10 justify-center items-center h-screen text-white">
-          <Square3Stack3DIcon className="w-20 h-20" />
+          <Square3Stack3DIcon className="w-20 h-20 animate-pulse" />
           Connecting to Vault...
           <Spinner className="w-15 h-15" color="orange" />
         </div>)
@@ -53,6 +60,6 @@ export default function VaultLayout({ children }) {
           {/* <Footer /> */}
         </Web5Context.Provider>
       }
-    </RootLayout>
+    </main>
   )
 }

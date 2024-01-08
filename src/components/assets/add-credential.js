@@ -21,10 +21,11 @@ export default function AddCredential() {
 
   // COMPONENT STATES
   const [loading, setLoading] = useState(false);
-  const [credentialType, setCredentialType] = useState('')
-  const [credentialTitle, setCredentialTitle] = useState('')
-  const [credentialContent, setCredentialContent] = useState('')
+  const [type, setType] = useState('')
+  const [title, setTitle] = useState('')
+  const [description, setDescription] = useState('')
   const [attachment, setAttachment] = useState(null)
+  const [size, setSize] = useState(null)
   const [isFormReady, setIsFormReady] = useState(false);
   const [alertInfo, setAlertInfo] = useState({
     open: false,
@@ -34,34 +35,40 @@ export default function AddCredential() {
 
   // FETCH BENEFICIARIES FOR FORM AND ENABLE SUBMIT AFTER FUNCTION RETURNS
   useEffect(() => {
-    setIsFormReady((
-      web5 !== null) && 
-      credentialTitle.length > 0 && 
-      credentialType.length > 0
+    if (attachment) {
+      setSize((attachment.size / (1024 * 1024)).toFixed(1))
+    }
+    setIsFormReady(
+      (web5 !== null) && 
+      title.length > 0 && 
+      type.length > 0
     );
-  }, [web5, credentialTitle, credentialType]);
+  }, [web5, title, type, attachment, size]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      let base64String = null
-
       // HANDLE FILE CONVERSION
+      let base64String = null
       if (attachment) {
+        if (attachment.size > 1 * 1024 * 1024) {
+          setAlertInfo({
+            open: true,
+            color: 'orange',
+            content: 'File size limit exceeded'
+          })
+          return
+        }
         // convert any file attachments accordingly
         base64String = await convertToBase64(attachment)
       }
 
-      const timestamp = new Date(Date.now()).toISOString();
-
       const vcData = {
-        type: credentialType,
-        subject: 'personal',
-        title: credentialTitle,
-        credentialContent: credentialContent,
+        type: type,
+        title: title.trim(),
+        description: description.trim(),
         attachment: base64String,
-        created: timestamp
       }
 
       const code = await addCredential(web5, vcData)
@@ -71,6 +78,8 @@ export default function AddCredential() {
         color: `${code === 202 ? 'green' : 'red'}`,
         content: `${code === 202 ? 'Asset saved' : 'Failed to save asset'}`
       })
+      setTitle('')
+      setDescription('')
     } catch (error) {
       console.info('Error: ', error)
       setAlertInfo({
@@ -103,12 +112,13 @@ export default function AddCredential() {
             color='orange'
             className='text-white'
             variant="static"
-            value={credentialType}
-            onChange={(e) => setCredentialType(e)}
+            value={type}
+            onChange={(e) => setType(e)}
           >
             <Option value='Will'>Will</Option>
             <Option value='Legal Document'>Legal Document</Option>
             <Option value='Special Message'>Special Message</Option>
+            <Option value='Backup Codes'>Backup Codes</Option>
           </Select>
         </div>
         {/* ASSET TITLE */}
@@ -122,21 +132,21 @@ export default function AddCredential() {
             className="!border-white !focus:border-orange-400 text-white"
             variant="static"
             color="orange"
-            value={credentialTitle}
-            onChange={(e) => setCredentialTitle(e.target.value)}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
           />
         </div>
         {/* ADDITIONAL CONTENT */}
         <div>
           <Textarea
             size="lg"
-            placeholder="Content of the credential or any additional description to be included"
-            label="Content (optional)"
+            placeholder="Additional description for the asset"
+            label="Description (optional)"
             className="!border-white !focus:border-orange-400 text-white"
             variant="static"
             color="orange"
-            value={credentialContent}
-            onChange={(e) => setCredentialContent(e.target.value)}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
           />
         </div>
         {/* ATTACHMENT */}
@@ -170,10 +180,10 @@ export default function AddCredential() {
             </svg>
             {
               attachment ? 
-                attachment.size > 1 * 1024 * 1024 ? 
-                  'File size exceeds the limit of 1MB.'
-                : 'File size limit is 1MB.'
-                : 'File size limit is 1MB.'
+              attachment.size > (1 * 1024 * 1024)? 
+                `Size limit exceeded : ${size}MB`
+              : 'File accepted ✔️'
+              : 'Allowed: PNG, JPG, PDF and plain text. Size limit: 1MB.'
             }
           </Typography>
         </div>

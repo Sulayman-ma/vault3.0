@@ -61,14 +61,14 @@ export function NewAssetCard() {
 
 export function BlankCard() {
   return (
-    <div className="flex justify-center items-center">
+    <CardBody className="flex justify-center items-center">
       <Typography 
         color="white"
         className="text-center flex justify-center items-center"
         variant="h3"
       >
-        Welcome back
+        Select an asset to view
       </Typography>
-    </div>
+    </CardBody>
   )
 }

@@ -16,7 +16,7 @@ import {
 import Link from "next/link"
 import { useEffect, useState } from "react"
 
-export function MiniCard({ setAsActive, assetData, setLoading, setBlank }) {
+export function MiniCard({ setAsActive, assetData, setLoading }) {
   const [header, setHeader] = useState('')
   const [title, setTitle] = useState('')
   const [attachment, setAttachment] = useState(false)
@@ -25,28 +25,26 @@ export function MiniCard({ setAsActive, assetData, setLoading, setBlank }) {
     // checking for type of asset to render card details accordingly
     if (!assetData) return
     
-    if (assetData.claim) {
-      setTitle(`${assetData.claim.title}`)
-      if (assetData.claim.attachment) setAttachment(true)
-    } else { 
-      setTitle(assetData.platform)
-      if (assetData.attachment) setAttachment(true)
-    }
+    if (assetData.title) { setTitle(assetData.title) }
+    else { setTitle(assetData.platform) }
+    if (assetData.attachment) setAttachment(true)
     setHeader(assetData.group.toUpperCase())
+  
     return
-
   }, [assetData])
+
+  const setStuff = (e) => {
+    e.preventDefault();
+    setLoading(true)
+    setAsActive({
+      group: assetData.group,
+      assetData: assetData
+    });
+  }
 
   return (
     <Link 
-      onClick={() => {
-        setAsActive({
-          group: assetData.group,
-          assetData: assetData
-        });
-        setLoading(true)
-								setBlank(false)
-      }}
+      onClick={setStuff}
       href=""
     >
       <Card className="w-auto max-w-[25rem] mr-2 mb-3 bg-gray-900 text-white hover:bg-gray-800">
@@ -96,16 +94,18 @@ export function MiniCard({ setAsActive, assetData, setLoading, setBlank }) {
   )
 }
 
-export function NewAssetMini({ setAsActive }) {
+export function NewAssetMini({ setAsActive, setLoading }) {
+  const setStuff = (e) => {
+    e.preventDefault();
+    setLoading(true)
+    setAsActive({
+      group: 'new_asset',
+    });
+  }
+
   return (
     <Link 
-        onClick={() => {
-            setAsActive({
-            group: 'new_asset',
-          });
-										setBlank(false)
-        }
-      } 
+      onClick={setStuff} 
       href=""
     >
       <Card className="w-auto max-w-[25rem] mr-2 mb-3 mt-5 text-white bg-gray-900 hover:bg-gray-800">
