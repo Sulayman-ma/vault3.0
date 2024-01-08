@@ -105,6 +105,7 @@ export default function Page() {
                         assetData={record}
                         setAsActive={setActiveCard}
                         setLoading={setLoading}
+																							setBlank={setBlank}
                       />
                     </div>
                   ))}
@@ -206,6 +207,7 @@ export default function Page() {
                         assetData={record}
                         setAsActive={setActiveCard}
                         setLoading={setLoading}
+																							setBlank={setBlank}
                       />
                     </div>
                   ))}
