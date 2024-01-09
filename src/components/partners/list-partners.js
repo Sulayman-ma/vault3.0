@@ -20,7 +20,7 @@ import { useState, useContext, useEffect } from "react";
 import { Web5Context } from "@/lib/contexts";
 import { transferAssetGroup, deleteRecord, getBeneficiaries } from "@/lib/crud";
 
-import { CheckIcon, ClipboardIcon, EllipsisHorizontalIcon, TrashIcon } from "@heroicons/react/24/solid";
+import { CheckCircleIcon, CheckIcon, ClipboardIcon, EllipsisHorizontalIcon, TrashIcon } from "@heroicons/react/24/solid";
 
 export default function ListPartners({ setAlertInfo }) {
   // WEB5 CONTEXT
@@ -143,10 +143,12 @@ export default function ListPartners({ setAlertInfo }) {
                   <Tooltip content="Copy DID">
                     <IconButton
                       onClick={() => {handleCopy}} // copy function here
+                      disabled={didCopied}
+                      className="hover:text-blue-800"
                     >
                       {
                         didCopied ?
-                        <CheckIcon className="w-5 h-5" />
+                        <>Copied {<CheckIcon className="w-5 h-5" />}</>
                         :
                         <ClipboardIcon className="w-5 h-5" />
                       }

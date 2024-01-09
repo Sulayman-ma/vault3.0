@@ -125,7 +125,7 @@ export default function AddCredential() {
       setTitle('')
       setDescription('')
       setPartnerDID('')
-      setShared(false)
+      setShared(null)
     } catch (error) {
       console.info('Error: ', error)
       setAlertInfo({

@@ -29,7 +29,7 @@ export default function Page() {
   }, [web5])
 
   return (
-    <div className=" m-auto">
+    <div className="mb-20 m-auto">
       <Timeline className="flex justify-center items-center gap-5 text-white">
         <Typography variant="h3" color="white">
           Notifications
