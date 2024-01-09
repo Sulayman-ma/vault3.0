@@ -135,7 +135,7 @@ export default function AddSecret() {
           onChange={(e) => setPhrase(e.target.value)}
         />
         {/* ASSOCIATE DID */}
-        <Checkbox
+        {/* <Checkbox
           label="Shared"
           value={shared}
           color="orange"
@@ -155,7 +155,7 @@ export default function AddSecret() {
             value={partnerDID}
             onChange={(e) => setPartnerDID(e.target.value)}
           />
-        </div>
+        </div> */}
       </div>
       {/* SUBMIT BUTTON */}
       <div className='flex flex-row justify-center items-center text-center'>
