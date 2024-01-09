@@ -65,7 +65,7 @@ export default function Page() {
     <div className="flex flex-col md:flex-row pr-6 pl-6 bg-black">
       {/* ASSET NAVIGATION FOR MEDIUM TO LARGE SCREENS */}
       <div>
-        <Card className="hidden md:flex md:flex-col overflow-auto lg:w-full md:w-[85%] overscroll-none bg-black lg:px-2 lg:ml-2 md:max-h-[27rem] rounded-none pt-5 pr-7">
+        <Card className="hidden md:flex md:flex-col overflow-auto md:max-w-[85%] overscroll-none bg-black lg:px-2 lg:ml-2 md:max-h-[27rem] rounded-none pt-5 pr-6">
           {/* RENDER MINI CARDS ACCORDING TO THEIR ASSET TYPE */}
           {
             // streaming while fetching data
@@ -221,7 +221,7 @@ export default function Page() {
       <div className="flex-1">
         <Card
           shadow={false}
-          className="flex justify-center items-center w-full lg:ml-5 bg-gray-900 text-white min-h-[17rem] mb-20"
+          className="flex justify-center items-center w-full lg:ml-1 bg-gray-900 text-white min-h-[17rem] mb-20"
         >
           {
             loading ?

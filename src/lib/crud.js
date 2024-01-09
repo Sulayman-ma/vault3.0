@@ -6,7 +6,7 @@ export async function addCredential(web5, vcData) {
   try {
     const portableDid = await DidIonMethod.create()
     const didString = portableDid.did
-    const { type, ...rest } = vcData
+    const { type, partnerDID, myDid, ...rest } = vcData
     
     // create VC object
     const vc = await VerifiableCredential.create({
@@ -16,21 +16,29 @@ export async function addCredential(web5, vcData) {
       data: rest
     });
 
-
     // sign VC with portable DID
     const signedVcJwt = await vc.sign({ did: portableDid })
 
+    console.info('we made it this far at least')
     // create record for signed VC and store here
-    const response = await web5.dwn.records.create({
+    const response = await web5.dwn.records.write({
       data: signedVcJwt,
       message: {
         protocol: lvp.protocol,
         protocolPath: "credential",
         schema: lvp.types.credential.schema,
         dataFormat: 'text/plain',
+        recipient: partnerDID,
+        author: myDid
       }
     })
-    // await response.record.send()
+
+    // send to the partner if specified
+    if (partnerDID) {
+      const send = await response.record.send(partnerDID)
+      console.info('Shared to associate: ', send)
+      const notification = await sendNotification(web5, partnerDID, myDid)
+    }
 
     return response.status.code
   } catch (error) {
@@ -52,7 +60,8 @@ export async function addSecret(web5, recordData) {
         dataFormat: 'application/json'
       }
     })
-    await response.record.send()
+    // await response.record.send()
+    console.info(response.status.code)
 
     return response.status.code
   } catch (error) {
@@ -98,10 +107,7 @@ export async function getSecrets(web5) {
           const details = {
             group: dwnData.group,
             recordId: record.id,
-            platform: payload.platform,
-            account_name: payload.account_name,
-            phrase: payload.phrase,
-            created: payload.created
+            ...payload
           }
           return details;
         })
@@ -135,9 +141,7 @@ export async function getCredentials(web5) {
           const details = {
             group: vc.type,
             recordId: record.id,
-            title: vcDetails.title,
-            description: vcDetails.description,
-            attachment: vcDetails.attachment,
+            ...vcDetails,
             created: vc.vcDataModel.issuanceDate
           }
           return details;
@@ -370,51 +374,23 @@ export function getFileInfo(base64String) {
   }
 }
 
-export async function transferAssetGroup(web5, type, partnerDID) {
-  // TRANSFERS ASSETS OF THE SPECIFIED GROUP (OR ALL) TO THE BENEFICIARY'S REMOTE DWN
-  try {
-    const records = await getAssetByType(web5, type)
-
-    console.info('Sending assets to ', partnerDID, '...')
-    records.forEach(async record => {
-      const response = await record.send(partnerDID)
-      console.info(response.status.code)
-    });
-    return 202
-  } catch (error) {
-    console.error('Failed to transfer assets: ', error)
-  }
-}
-
-export async function transferAsset(web5, recordId, partnerDID) {
-  try {
-    const response = await web5.dwn.records.read({
-      message: {
-        filter: {
-          recordId: recordId
-        },
-      },
-    })
-
-    const sendResponse = await response.record.send(partnerDID)
-
-    return sendResponse.status.code
-  } catch (error) {
-    console.error('Failed to transfer asset: ', error)
-  }
-}
-
-export async function sendNotification(web5, message, partnerDID) {
+export async function sendNotification(web5, partnerDID, myDid) {
+  const currentDate = new Date().toLocaleDateString();
+  const currentTime = new Date().toLocaleTimeString();
   // CREATE NOTIFICATION
-  const { record } = await web5.dwn.records.create({
-    // does not store
-    store: false,
-    data: message,
+  const { record } = await web5.dwn.records.write({
+    data: {
+      message: 
+      `Shared asset from [${myDid.substring(0, 25)}...]`,
+      timestamp: `${currentDate} ${currentTime}`,
+    },
     message: {
       protocol: lvp.protocol,
       protocolPath: "notification",
       schema: lvp.types.notification.schema,
-      dataFormat: 'text/plain',
+      dataFormat: 'application/json',
+      recipient: partnerDID,
+      author: myDid
     }
   })
 
@@ -422,4 +398,66 @@ export async function sendNotification(web5, message, partnerDID) {
   const response = await record.send(partnerDID)
 
   return response.status.code
+}
+
+export async function getNotifications(web5) {
+  try {
+    const response = await web5.dwn.records.query({
+      message: {
+        filter: {
+          protocol: lvp.protocol,
+          schema: lvp.types.notification.schema,
+        },
+      },
+    });
+  
+    if (response.status.code === 200) {
+      const notifs = await Promise.all(
+        response.records.map(async (record) => {
+          const dwnData = await record.data.json();
+          return dwnData;
+        })
+      );
+      console.info(notifs)
+      return notifs
+    }
+  } catch (error) {
+    console.error('Failed to fetch notifications:', error)
+  }
+}
+
+export async function debugSentAssets(web5, receivingDID) {
+  try {
+    const response = await web5.dwn.records.query({
+      from: receivingDID,
+      message: {
+        filter: {
+          protocol: "https://legacy-vault/protocol",
+          schema: "https://legacy-vault/credential",
+          dataFormat: 'text/plain'
+        },
+      },
+    });
+    
+    if (response.status.code === 200) {
+      const docs = await Promise.all(
+        // retrieve payload and other necessary data for the credentials
+        response.records.map(async (record) => {
+          const signedJwt = await record.data.text();
+          const vc = VerifiableCredential.parseJwt({ vcJwt: signedJwt })
+          const vcDetails = vc.vcDataModel.credentialSubject
+          const details = {
+            group: vc.type,
+            recordId: record.id,
+            ...vcDetails,
+            created: vc.vcDataModel.issuanceDate
+          }
+          return details;
+        })
+      );
+      return docs
+    }
+  } catch (error) {
+    console.error('Failed to fetch send assets:', error)
+  }
 }

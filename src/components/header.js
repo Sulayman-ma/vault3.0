@@ -1,19 +1,14 @@
 import { 
-  Button,
-  IconButton,
   List,
   ListItem,
   ListItemPrefix,
-  Tooltip,
-  Typography,
 } from "@material-tailwind/react";
 import { 
   UserPlusIcon,
   HomeIcon,
   CheckIcon,
-  ClipboardIcon,
-  ClipboardDocumentIcon,
   ClipboardDocumentListIcon,
+  BellIcon,
 } from "@heroicons/react/24/solid";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -60,15 +55,26 @@ export default function Header() {
               Assets
             </ListItem>
           </Link>
-          <Link href="/partners">
+          <Link href="/associates">
             <ListItem 
-              selected={pathname === '/partners' ? true : false} 
+              selected={pathname === '/associates' ? true : false} 
               className="text-gray-200 hover:bg-gray-500 hover:text-gray-200 focus:text-gray-200 focus:bg-gray-500"
             >
               <ListItemPrefix>
                 <UserPlusIcon className="h-5 w-5" />
               </ListItemPrefix>
-              Partners
+              Associates
+            </ListItem>
+          </Link>
+          <Link href="/notifications">
+            <ListItem 
+              selected={pathname === '/notifications' ? true : false} 
+              className="text-gray-200 hover:bg-gray-500 hover:text-gray-200 focus:text-gray-200 focus:bg-gray-500"
+            >
+              <ListItemPrefix>
+                <BellIcon className="h-5 w-5" />
+              </ListItemPrefix>
+              Notifications
             </ListItem>
           </Link>
           <ListItem 
@@ -99,29 +105,37 @@ export default function Header() {
               <HomeIcon className="h-7 w-7" />
             </ListItem>
           </Link>
-          <Link href="/partners">
+          <Link href="/associates">
             <ListItem
-              selected={pathname === '/partners' ? true : false} 
+              selected={pathname === '/associates' ? true : false} 
               className="text-gray-200 hover:bg-gray-500 hover:text-gray-200 focus:text-gray-200 focus:bg-gray-500"
             >
               <UserPlusIcon className="h-7 w-7" />
             </ListItem>
           </Link>
+          <Link href="/notifications">
+            <ListItem
+              selected={pathname === '/notifications' ? true : false} 
+              className="text-gray-200 hover:bg-gray-500 hover:text-gray-200 focus:text-gray-200 focus:bg-gray-500"
+            >
+              <BellIcon className="h-7 w-7" />
+            </ListItem>
+          </Link>
           <div>
-          <ListItem 
-            className="text-blue-300 hover:bg-transparent hover:text-blue-800 focus:bg-transparent"
-            onClick={handleCopy}
-            disabled={didCopied}
-          >
-            <ListItemPrefix>
-            {
-              didCopied ?
-              <>Copied {<CheckIcon className="w-5 h-5" />}</>
-              :
-              <>Copy DID {<ClipboardDocumentListIcon className="w-5 h-5" />}</>
-            }
-            </ListItemPrefix>
-          </ListItem>
+            <ListItem 
+              className="text-blue-300 hover:bg-transparent hover:text-blue-800 focus:bg-transparent"
+              onClick={handleCopy}
+              disabled={didCopied}
+            >
+              <ListItemPrefix>
+              {
+                didCopied ?
+                <>Copied {<CheckIcon className="w-5 h-5" />}</>
+                :
+                <>Copy DID {<ClipboardDocumentListIcon className="w-5 h-5" />}</>
+              }
+              </ListItemPrefix>
+            </ListItem>
           </div>
         </List>
       </div>

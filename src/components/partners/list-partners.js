@@ -20,7 +20,7 @@ import { useState, useContext, useEffect } from "react";
 import { Web5Context } from "@/lib/contexts";
 import { transferAssetGroup, deleteRecord, getBeneficiaries } from "@/lib/crud";
 
-import { CheckIcon, ClipboardIcon, EllipsisHorizontalIcon } from "@heroicons/react/24/solid";
+import { CheckIcon, ClipboardIcon, EllipsisHorizontalIcon, TrashIcon } from "@heroicons/react/24/solid";
 
 export default function ListPartners({ setAlertInfo }) {
   // WEB5 CONTEXT
@@ -33,7 +33,6 @@ export default function ListPartners({ setAlertInfo }) {
   const [beneficiaries, setBeneficiaries] = useState(null)
   const [removeId, setRemoveId] = useState('');
   const [type, setType] = useState('')
-  const [partnerDID, setPartnerDID] = useState('')
   const [didCopied, setDidCopied] = useState(false)
 
   // FETCH BENEFICIARIES TO RENDER
@@ -57,11 +56,6 @@ export default function ListPartners({ setAlertInfo }) {
     setOpenDialog(true)
   }
 
-  const handleTransfer = (did) => {
-    setPartnerDID(did)
-    setTransferDialog(true)
-  }
-
   // COPY DID TO CLIPBOARD
   const handleCopy = async (did) => {
     try {
@@ -77,28 +71,6 @@ export default function ListPartners({ setAlertInfo }) {
     }
   }
 
-  const executeTransfer = async (e) => {
-    e.preventDefault()
-    setLoading(true)
-    try {
-      const code = await transferAssetGroup(web5, type, partnerDID)
-
-      setAlertInfo({
-        open: true,
-        color: `${code === 202 ? 'green' : 'red'}`,
-        content: `${code === 202 ? 'Assets transfered' : 'Transfer failed'}`
-      })
-    } catch (error) {
-      setAlertInfo({
-        open: true,
-        color: 'red',
-        content: error.message
-      })
-    }
-    setLoading(false)
-    setTransferDialog(false)
-  }
-
   const removeBeneficiary = async () => {
     setLoading(true)
     try {
@@ -108,7 +80,7 @@ export default function ListPartners({ setAlertInfo }) {
       setAlertInfo({
         open: true,
         color: 'green',
-        content: 'Partner removed'
+        content: 'Associate removed'
       })
     } catch (error) {
       setAlertInfo({
@@ -132,7 +104,7 @@ export default function ListPartners({ setAlertInfo }) {
         beneficiaries && beneficiaries.length === 0 ?
         <div className="flex justify-center items-center">
           <Typography variant="h5" color="white">
-            No partners added
+            No associates added
           </Typography>
         </div>
         :
@@ -152,27 +124,12 @@ export default function ListPartners({ setAlertInfo }) {
                     <Typography variant="h6" color="white" className="font-semibold">
                       {name}
                     </Typography>
-                    <Popover placement="bottom">
-                      <PopoverHandler>
-                        <IconButton>
-                          <EllipsisHorizontalIcon className="w-10 h-10" />
-                        </IconButton>
-                      </PopoverHandler>
-                      <PopoverContent className="bg-black border-none w-20 flex-col flex items-center">
-                        <Button 
-                          className={`${classes}`} 
-                          onClick={() => {handleTransfer(did)}}
-                        >
-                          Transfer assets
-                        </Button>
-                        <Button 
-                          className={`${classes} hover:text-red-800`}  
-                          onClick={() => {handleRemove(recordId)}}
-                        >
-                          Remove
-                        </Button>
-                      </PopoverContent>
-                    </Popover>
+                    <IconButton
+                      className={`${classes} hover:text-red-800`}  
+                      onClick={() => {handleRemove(recordId)}}
+                    >
+                      <TrashIcon className="w-5 h-5" />
+                    </IconButton>
                   </div>
                   
                   {/* truncated DID */}
@@ -209,13 +166,13 @@ export default function ListPartners({ setAlertInfo }) {
 
       {/* CONFIRM REMOVE BENEFICIARY DIALOG */}
       <Dialog open={openDialog} handler={() => setOpenDialog(!openDialog)}>
-        <DialogHeader color="red">Remove Partner</DialogHeader>
+        <DialogHeader color="red">Remove Associate</DialogHeader>
         <DialogBody className="flex items-center justify-center text-center">
         {
             loading ? 
             <Spinner color="orange" className="w-30 h-30" />
             : 
-            'Are you sure you want to remove partner from list?'
+            'Are you sure you want to remove associate from list?'
           }
         </DialogBody>
         <DialogFooter>
@@ -235,44 +192,6 @@ export default function ListPartners({ setAlertInfo }) {
             Remove
           </Button>
         </DialogFooter>
-      </Dialog>
-
-      {/* HANDLE TRANSFER ASSETS */}
-      <Dialog open={transferDialog} handler={() => setTransferDialog(!transferDialog)}>
-        <DialogHeader color="red">Transfer assets to partner</DialogHeader>
-        <form onSubmit={executeTransfer}>
-          <Select
-            label="Asset Type"
-            size='lg'
-            color='orange'
-            className='text-white'
-            variant="static"
-            value={type}
-            onChange={(e) => setType(e)}
-          >
-            <Option value='Secret'>Secret</Option>
-            <Option value='Will'>Will</Option>
-            <Option value='Legal Document'>Legal Document</Option>
-            <Option value='Special Message'>Special Message</Option>
-            <Option value='Backup Codes'>Backup Codes</Option>
-          </Select>
-          {/* SUBMIT BUTTON */}
-          <div className='flex flex-row justify-center items-center text-center'>
-            <Button 
-              className="flex items-center justify-center w-2/5 md:w-1/3 lg:w-1/3 mt-6 bg-black hover:bg-gray-800"
-              fullWidth
-              disabled={loading}
-              type='submit'
-            >
-              {
-                loading ? 
-                <Spinner color="orange" className="w-5 h-5" />
-                : 
-                'transfer'
-              }
-            </Button>
-          </div>
-        </form>
       </Dialog>
     </>
   )

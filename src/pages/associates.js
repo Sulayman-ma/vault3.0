@@ -67,7 +67,7 @@ export default function Page() {
         setAlertInfo({
           open: true,
           color: 'orange',
-          content: 'Please enter a partner name'
+          content: 'Please enter a associate name'
         })
         return;
       }
@@ -93,7 +93,7 @@ export default function Page() {
       setAlertInfo({
         open: true,
         color: `${code === 202 ? 'green' : 'red'}`,
-        content: `${code === 202 ? 'Partner added' : 'Failed to add'}`
+        content: `${code === 202 ? 'Associate added' : 'Failed to add'}`
       })
       setBenName('')
       setBenDid('')
@@ -115,7 +115,7 @@ export default function Page() {
       {/* ADD NEW BENEFICIARY */}
       <div className="flex justify-evenly items-center">
         <Typography variant="h3" color="white">
-          Vault Partners
+          Vault Associates
         </Typography>
         <IconButton
           onClick={() => {setOpenDialog(!openDialog)}}
@@ -152,12 +152,12 @@ export default function Page() {
           onSubmit={handleSubmit}
         >
           <Typography variant="h3" color="white" className="mb-3">
-            Add a new partner
+            Add a new associate
           </Typography>
           <div className="mb-1 flex flex-col gap-14">
             <Input
               size="lg"
-              label="Partner Name"
+              label="Associate Name"
               color="orange"
               variant="static"
               placeholder="John Trabajo Joe"
@@ -168,7 +168,7 @@ export default function Page() {
             />
             <Input
               size="lg"
-              label="Partner DID"
+              label="Associate DID"
               placeholder="did:ion:12sd34as..."
               type='text'
               color="orange"

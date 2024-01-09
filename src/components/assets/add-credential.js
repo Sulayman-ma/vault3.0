@@ -7,17 +7,19 @@ import {
   Textarea,
   Spinner,
   Alert,
+  Checkbox,
 } from "@material-tailwind/react"
 import { useContext, useEffect, useState } from "react";
 import { 
   addCredential, 
   convertToBase64,
+  debugSentAssets,
 } from "@/lib/crud";
 import { Web5Context } from "@/lib/contexts";
 
 export default function AddCredential() {
   // WEB5 CONTEXT
-  const { web5 } = useContext(Web5Context)
+  const { web5, myDid } = useContext(Web5Context)
 
   // COMPONENT STATES
   const [loading, setLoading] = useState(false);
@@ -27,6 +29,8 @@ export default function AddCredential() {
   const [attachment, setAttachment] = useState(null)
   const [size, setSize] = useState(null)
   const [isFormReady, setIsFormReady] = useState(false);
+  const [partnerDID, setPartnerDID] = useState('')
+  const [shared, setShared] = useState(false)
   const [alertInfo, setAlertInfo] = useState({
     open: false,
     color: 'blue',
@@ -44,6 +48,22 @@ export default function AddCredential() {
       type.length > 0
     );
   }, [web5, title, type, attachment, size]);
+
+  // DEBUGGING SENT ASSETS
+  useEffect(() => {
+    if(!web5) return;
+    if(!partnerDID) return;
+    try {
+      let routineFetch = setTimeout(async () => {
+        const fetchedData = await debugSentAssets(web5)
+        console.info('Assets sent to the enemy: ', fetchedData)
+      }, 5000); // run every 5 seconds
+  
+      return () => clearTimeout(routineFetch)
+    } catch (error) {
+      console.error(error.message)
+    }
+  }, [web5, partnerDID])
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -69,17 +89,22 @@ export default function AddCredential() {
         title: title.trim(),
         description: description.trim(),
         attachment: base64String,
+        partnerDID: partnerDID,
+        myDid: myDid,
+        shared: shared
       }
 
       const code = await addCredential(web5, vcData)
 
       setAlertInfo({
         open: true,
-        color: `${code === 202 ? 'green' : 'red'}`,
-        content: `${code === 202 ? 'Asset saved' : 'Failed to save asset'}`
+        color: `green`,
+        content: 'Asset saved'
       })
       setTitle('')
       setDescription('')
+      setPartnerDID('')
+      setShared(false)
     } catch (error) {
       console.info('Error: ', error)
       setAlertInfo({
@@ -136,6 +161,26 @@ export default function AddCredential() {
             onChange={(e) => setTitle(e.target.value)}
           />
         </div>
+        {/* PARTNER DID */}
+        <div>
+          <Input
+            size="lg"
+            placeholder="did:ion:EiATonoOnZFGWpw17..."
+            label="Associate DID (optional)"
+            type="text"
+            className="!border-white !focus:border-orange-400 text-white"
+            variant="static"
+            color="orange"
+            value={partnerDID}
+            // disabled={!isWill}
+            onChange={(e) => setPartnerDID(e.target.value)}
+          />
+        </div>
+        <Checkbox 
+          label="Shared"
+          value={shared}
+          onChange={() => {setShared(!shared)}}
+        />
         {/* ADDITIONAL CONTENT */}
         <div>
           <Textarea

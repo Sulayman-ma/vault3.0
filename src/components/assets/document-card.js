@@ -22,14 +22,16 @@ import {
 import {
   ArrowDownIcon,
   EllipsisHorizontalIcon,
+  LockClosedIcon,
+  ShareIcon,
 } from "@heroicons/react/24/solid"
 import { useContext, useEffect, useState } from "react"
 import { Web5Context } from "@/lib/contexts"
-import { convertToBase64, deleteRecord, transferAsset, updateCredential } from "@/lib/crud"
+import { convertToBase64, deleteRecord, updateCredential } from "@/lib/crud"
 
 export default function DocumentCard({ assetData, updateAsset, setBlank }) {   
   // WEB5 CONTEXT AND ASSET GROUP
-  const { web5, myDid } = useContext(Web5Context)
+  const { web5 } = useContext(Web5Context)
 
   // COMPONENT STATES
   const [loading, setLoading] = useState(false)
@@ -38,8 +40,6 @@ export default function DocumentCard({ assetData, updateAsset, setBlank }) {
   const [attachment, setAttachment] = useState(null)
   const [size, setSize] = useState(0)
   const [formData, setFormData] = useState({ ...assetData })
-  const [transferDialog, setTransferDialog] = useState(false)
-  const [partnerDID, setPartnerDID] = useState('')
   const [alertInfo, setAlertInfo] = useState({
     open: false,
     color: 'blue',
@@ -82,32 +82,6 @@ export default function DocumentCard({ assetData, updateAsset, setBlank }) {
     // remove anchor
     document.body.removeChild(anchor);
     return
-  }
-
-  // TRANFER ASSET
-  const executeTransfer = async (e) => {
-    e.preventDefault()
-    setLoading(true)
-    try {
-      const code = await transferAsset(
-        web5, formData.recordId, partnerDID
-      )
-      console.info('Transfer status: ', code)
-      
-      setAlertInfo({
-        open: true,
-        color: `${code >= 200 ? 'green' : 'red'}`,
-        content: `${code >= 200 ? 'Asset transfered' : 'Transfer failed'}`
-      })
-    } catch (error) {
-      setAlertInfo({
-        open: true,
-        color: 'red',
-        content: error.message
-      })
-    }
-    setLoading(false)
-    setTransferDialog(false)
   }
 
   // EDIT ASSET
@@ -188,9 +162,21 @@ export default function DocumentCard({ assetData, updateAsset, setBlank }) {
         color="white"
       >
         {/* HEADER TITLE */}
+        <div className="flex flex-row justify-center items-center gap-5">
         <Typography variant="h3">
           {assetData.group}
         </Typography>
+        {
+          assetData.shared ?
+          <Tooltip content="Shared asset">
+            <ShareIcon className="w-7 h-7 text-orange-400" />
+          </Tooltip> 
+          : 
+          <Tooltip content="Private asset">
+            <LockClosedIcon className="w-7 h-7 text-blue-700" />
+          </Tooltip>
+        }
+        </div>
 
         {/* EDIT AND DELETE ICONS */}
         <Popover placement="bottom">
@@ -200,19 +186,24 @@ export default function DocumentCard({ assetData, updateAsset, setBlank }) {
             </IconButton>
           </PopoverHandler>
           <PopoverContent className="bg-black border-none w-20 flex-col flex items-center">
-            <Button 
-              className="bg-transparent text-white hover:shadow-none hover:text-gray-800" 
-              onClick={() => {setEditDialog(true)}}
-            >
-              Edit
-            </Button>
-            <Button 
-              className="bg-transparent text-white hover:shadow-none hover:text-gray-800" 
-              disabled={loading}
-              onClick={() => {setTransferDialog(true)}}
-            >
-              Transfer
-            </Button>
+            {
+              assetData.shared ?
+              <Tooltip content="Shared assets cannot be modified">
+                <Button 
+                  className="bg-transparent text-white hover:shadow-none hover:text-gray-800" 
+                  disabled={true}
+                >
+                  Edit
+                </Button>
+              </Tooltip>
+              :
+              <Button 
+                className="bg-transparent text-white hover:shadow-none hover:text-gray-800" 
+                onClick={() => {setEditDialog(true)}}
+              >
+                Edit
+              </Button>
+            }
             <Button 
               className="bg-transparent text-white hover:shadow-none hover:text-red-800" 
               onClick={() => {setOpenDialog(true)}}
@@ -251,7 +242,7 @@ export default function DocumentCard({ assetData, updateAsset, setBlank }) {
         <Typography variant="h6" color="gray" className="mt-1 font-semibold">
         CREATED : {assetData.created}
         </Typography>
-        <Tooltip content="Download asset file">
+        <Tooltip content="Download attachment">
           {
             assetData.attachment ? (
             <IconButton
@@ -390,48 +381,6 @@ export default function DocumentCard({ assetData, updateAsset, setBlank }) {
               onClick={() => {setEditDialog(false)}}
             >
               Cancel
-            </Button>
-          </div>
-        </form>
-      </Dialog>
-
-      {/* TRANSFER ASSET FORM */}
-      <Dialog 
-        className="bg-gray-900 py-6"
-        open={transferDialog} 
-        size="xs" 
-        handler={() => setTransferDialog(!transferDialog)}
-      >
-        <form 
-          onSubmit={executeTransfer}
-          className="flex flex-col gap-10 mt-8 mb-2 mx-auto w-full min-w-[15rem] max-w-[24rem]"
-        >
-          <Input
-            size="lg"
-            label="Partner DID"
-            placeholder="did:ion:12sd34as..."
-            type='text'
-            color="orange"
-            variant="static"
-            required
-            className="!border-white focus:!border-orange-400 text-white"
-            value={partnerDID}
-            onChange={(e) => setPartnerDID(e.target.value)}
-          />
-          {/* SUBMIT BUTTON */}
-          <div className='flex flex-row justify-center items-center text-center'>
-            <Button 
-              className="flex items-center justify-center w-2/5 md:w-1/3 lg:w-1/3 mt-6 bg-black hover:bg-gray-800"
-              fullWidth
-              disabled={loading}
-              type='submit'
-            >
-              {
-                loading ? 
-                <Spinner color="orange" className="w-5 h-5" />
-                : 
-                'transfer'
-              }
             </Button>
           </div>
         </form>
