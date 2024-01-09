@@ -532,7 +532,8 @@ export async function sendAssetCopy(web5, vcData) {
   try {
     const portableDid = await DidIonMethod.create()
     const didString = portableDid.did
-    const { type, partnerDID, myDid, ...rest } = vcData
+    // removing record ID
+    const { type, partnerDID, myDid, recordId, ...rest } = vcData
     
     // create VC object
     const vc = await VerifiableCredential.create({
