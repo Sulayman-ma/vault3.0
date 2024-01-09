@@ -23,7 +23,7 @@ export default function AssetCanvas({ activeCard }) {
   useEffect(() => {
     setGroup(activeCard.group)
     setAssetData(activeCard.assetData)
-  }, [activeCard, blank])
+  }, [activeCard])
 
   const updateAsset = (group, newData) => {
     setGroup(group)
@@ -55,7 +55,9 @@ export default function AssetCanvas({ activeCard }) {
           assetData={assetData}
           updateAsset={updateAsset}
           setBlank={setBlank}
-        /> : <BlankCard />
+        /> 
+        : 
+        <BlankCard />
       }
     </>
   )

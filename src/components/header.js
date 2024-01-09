@@ -1,18 +1,46 @@
 import { 
+  Button,
+  IconButton,
   List,
   ListItem,
   ListItemPrefix,
+  Tooltip,
+  Typography,
 } from "@material-tailwind/react";
 import { 
   UserPlusIcon,
   HomeIcon,
+  CheckIcon,
+  ClipboardIcon,
+  ClipboardDocumentIcon,
+  ClipboardDocumentListIcon,
 } from "@heroicons/react/24/solid";
 import Link from "next/link";
-import { Web5Connected } from "@/components/connected-web5";
 import { usePathname } from "next/navigation";
+import { useContext, useState } from "react";
+import { Web5Context } from "@/lib/contexts";
 
 export default function Header() {
   const pathname = usePathname()
+  const { myDid } = useContext(Web5Context)
+
+  const [didCopied, setDidCopied] = useState(false)
+
+  // COPY DID TO CLIPBOARD
+  const handleCopy = async (e) => {
+    e.preventDefault();
+    try {
+      await navigator.clipboard.writeText(myDid);
+      setDidCopied(true);
+      console.log("DID copied to clipboard");
+
+      setTimeout(() => {
+        setDidCopied(false);
+      }, 3000); //disable copy for 3 seconds
+    } catch (err) {
+      console.log("Failed to copy DID: " + err);
+    }
+  }
   
   return (
     // MEDIUM TO LARGE SCREENS HAVE THE TOP SIDE FULL NAVIGATION
@@ -32,18 +60,31 @@ export default function Header() {
               Assets
             </ListItem>
           </Link>
-          <Link href="/beneficiaries">
+          <Link href="/partners">
             <ListItem 
-              selected={pathname === '/beneficiaries' ? true : false} 
+              selected={pathname === '/partners' ? true : false} 
               className="text-gray-200 hover:bg-gray-500 hover:text-gray-200 focus:text-gray-200 focus:bg-gray-500"
             >
               <ListItemPrefix>
                 <UserPlusIcon className="h-5 w-5" />
               </ListItemPrefix>
-              Beneficiaries
+              Partners
             </ListItem>
           </Link>
-          {/* <Web5Connected /> */}
+          <ListItem 
+            className="text-blue-300 hover:bg-transparent hover:text-blue-800 focus:bg-transparent"
+            onClick={handleCopy}
+            disabled={didCopied}
+          >
+            <ListItemPrefix>
+            {
+              didCopied ?
+              <>Copied {<CheckIcon className="w-5 h-5" />}</>
+              :
+              <>Copy DID {<ClipboardDocumentListIcon className="w-5 h-5" />}</>
+            }
+            </ListItemPrefix>
+          </ListItem>
         </List>
       </div>
 
@@ -58,17 +99,30 @@ export default function Header() {
               <HomeIcon className="h-7 w-7" />
             </ListItem>
           </Link>
-          <Link href="/beneficiaries">
+          <Link href="/partners">
             <ListItem
-              selected={pathname === '/beneficiaries' ? true : false} 
+              selected={pathname === '/partners' ? true : false} 
               className="text-gray-200 hover:bg-gray-500 hover:text-gray-200 focus:text-gray-200 focus:bg-gray-500"
             >
               <UserPlusIcon className="h-7 w-7" />
             </ListItem>
           </Link>
-
-          {/* WEB5 CONNECTION INDICATOR */}
-          {/* <Web5Connected  /> */}
+          <div>
+          <ListItem 
+            className="text-blue-300 hover:bg-transparent hover:text-blue-800 focus:bg-transparent"
+            onClick={handleCopy}
+            disabled={didCopied}
+          >
+            <ListItemPrefix>
+            {
+              didCopied ?
+              <>Copied {<CheckIcon className="w-5 h-5" />}</>
+              :
+              <>Copy DID {<ClipboardDocumentListIcon className="w-5 h-5" />}</>
+            }
+            </ListItemPrefix>
+          </ListItem>
+          </div>
         </List>
       </div>
     </>

@@ -47,35 +47,12 @@ export default function SecretCard({ assetData, updateAsset, setBlank }) {
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: value.trim(),
+      [name]: value,
     });
   };
 
   // REVEAL SECRET FOR PASSWORDS
   const revealSecret = () => { setRevealed(!revealed) }
-
-  // DOWNLOAD ASSET ATTACHMENT
-  const downloadFile = async () => {
-    const base64String = assetData.claim.attachment
-
-    const file = await convertBase64ToFile(base64String, assetData.claim.title)
-
-    const temp = window.URL.createObjectURL(file)
-
-    // creating download anchor
-    const anchor = document.createElement('a');
-    anchor.href = temp;
-    anchor.download = file.name;
-    anchor.style.display = 'none';
-    document.body.appendChild(anchor);
-
-    // simulating click to download
-    anchor.click();
-
-    // remove anchor
-    document.body.removeChild(anchor);
-    return
-  }
 
   // EDIT ASSET
   const editAsset = async (e) => {
@@ -119,7 +96,7 @@ export default function SecretCard({ assetData, updateAsset, setBlank }) {
       })
 
       setBlank(true)
-      updateAsset({ group: 'blank', assetData: {} })
+      // updateAsset({ group: 'blank', assetData: {} })
     } catch (error) {
       setAlertInfo({
         open: true,
