@@ -19,6 +19,7 @@ export async function addCredential(web5, vcData) {
     // sign VC with portable DID
     const signedVcJwt = await vc.sign({ did: portableDid })
 
+    console.info('we made it this far at least')
     // create record for signed VC and store here
     const response = await web5.dwn.records.write({
       data: signedVcJwt,

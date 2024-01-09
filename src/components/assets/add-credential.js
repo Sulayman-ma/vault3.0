@@ -7,6 +7,7 @@ import {
   Textarea,
   Spinner,
   Alert,
+  Checkbox,
 } from "@material-tailwind/react"
 import { useContext, useEffect, useState } from "react";
 import { 
@@ -28,7 +29,7 @@ export default function AddCredential() {
   const [attachment, setAttachment] = useState(null)
   const [size, setSize] = useState(null)
   const [isFormReady, setIsFormReady] = useState(false);
-  const [partnerDID, setPartnerDID] = useState(null)
+  const [partnerDID, setPartnerDID] = useState('')
   const [shared, setShared] = useState(false)
   const [alertInfo, setAlertInfo] = useState({
     open: false,
@@ -46,9 +47,7 @@ export default function AddCredential() {
       title.length > 0 && 
       type.length > 0
     );
-
-    if (partnerDID) setShared(partnerDID.length > 0)
-  }, [web5, title, type, attachment, size, partnerDID]);
+  }, [web5, title, type, attachment, size]);
 
   // DEBUGGING SENT ASSETS
   useEffect(() => {
@@ -99,11 +98,13 @@ export default function AddCredential() {
 
       setAlertInfo({
         open: true,
-        color: `${code <= 202 ? 'green' : 'red'}`,
-        content: `${code <= 202 ? 'Asset saved' : 'Failed to save asset'}`
+        color: `green`,
+        content: 'Asset saved'
       })
       setTitle('')
       setDescription('')
+      setPartnerDID('')
+      setShared(false)
     } catch (error) {
       console.info('Error: ', error)
       setAlertInfo({
@@ -175,6 +176,11 @@ export default function AddCredential() {
             onChange={(e) => setPartnerDID(e.target.value)}
           />
         </div>
+        <Checkbox 
+          label="Shared"
+          value={shared}
+          onChange={() => {setShared(!shared)}}
+        />
         {/* ADDITIONAL CONTENT */}
         <div>
           <Textarea

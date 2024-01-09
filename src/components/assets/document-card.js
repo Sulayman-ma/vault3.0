@@ -27,11 +27,11 @@ import {
 } from "@heroicons/react/24/solid"
 import { useContext, useEffect, useState } from "react"
 import { Web5Context } from "@/lib/contexts"
-import { convertToBase64, deleteRecord, transferAsset, updateCredential } from "@/lib/crud"
+import { convertToBase64, deleteRecord, updateCredential } from "@/lib/crud"
 
 export default function DocumentCard({ assetData, updateAsset, setBlank }) {   
   // WEB5 CONTEXT AND ASSET GROUP
-  const { web5, myDid } = useContext(Web5Context)
+  const { web5 } = useContext(Web5Context)
 
   // COMPONENT STATES
   const [loading, setLoading] = useState(false)
@@ -186,12 +186,24 @@ export default function DocumentCard({ assetData, updateAsset, setBlank }) {
             </IconButton>
           </PopoverHandler>
           <PopoverContent className="bg-black border-none w-20 flex-col flex items-center">
-            <Button 
-              className="bg-transparent text-white hover:shadow-none hover:text-gray-800" 
-              onClick={() => {setEditDialog(true)}}
-            >
-              Edit
-            </Button>
+            {
+              assetData.shared ?
+              <Tooltip content="Shared assets cannot be modified">
+                <Button 
+                  className="bg-transparent text-white hover:shadow-none hover:text-gray-800" 
+                  disabled={true}
+                >
+                  Edit
+                </Button>
+              </Tooltip>
+              :
+              <Button 
+                className="bg-transparent text-white hover:shadow-none hover:text-gray-800" 
+                onClick={() => {setEditDialog(true)}}
+              >
+                Edit
+              </Button>
+            }
             <Button 
               className="bg-transparent text-white hover:shadow-none hover:text-red-800" 
               onClick={() => {setOpenDialog(true)}}
