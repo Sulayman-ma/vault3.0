@@ -72,7 +72,7 @@ export default function Header() {
               className="text-gray-200 hover:bg-gray-500 hover:text-gray-200 focus:text-gray-200 focus:bg-gray-500"
             >
               <ListItemPrefix>
-                <UserPlusIcon className="h-5 w-5" />
+                <BellIcon className="h-5 w-5" />
               </ListItemPrefix>
               Notifications
             </ListItem>

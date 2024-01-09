@@ -35,7 +35,7 @@ export async function addCredential(web5, vcData) {
     // send to the partner if specified
     if (partnerDID) {
       const send = await response.record.send(partnerDID)
-      console.info('Shared to associate: ', send.status)
+      console.info('Shared to associate: ', send)
       const notification = await sendNotification(web5, partnerDID, myDid)
     }
 
@@ -380,7 +380,7 @@ export async function sendNotification(web5, partnerDID, myDid) {
   const { record } = await web5.dwn.records.write({
     data: {
       message: 
-      `Shared asset: ${myDid.substring(0, 20)}...} -> ${partnerDID.substring(0, 20)}...}`,
+      `Shared asset from [${myDid.substring(0, 25)}...]`,
       timestamp: `${currentDate} ${currentTime}`,
     },
     message: {
@@ -417,6 +417,7 @@ export async function getNotifications(web5) {
           return dwnData;
         })
       );
+      console.info(notifs)
       return notifs
     }
   } catch (error) {

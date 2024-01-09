@@ -23,11 +23,7 @@ export default function VaultLayout({ children }) {
         console.info('Connecting to web5')
         const { Web5 } = await import('@web5/api')
         const { web5, did: myDid } = await Web5.connect({
-          sync: '5s',
-          techPreview: {
-            // render hosted DWN, let's hope it works
-            dwnEndpoints: ['https://dwn-server-51k2.onrender.com']
-          }
+          sync: '5s'
         })
 
         setWeb5(web5)

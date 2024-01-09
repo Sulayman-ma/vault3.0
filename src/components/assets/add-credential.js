@@ -47,7 +47,7 @@ export default function AddCredential() {
       type.length > 0
     );
 
-    setShared(partnerDID.length > 0)
+    if (partnerDID) setShared(partnerDID.length > 0)
   }, [web5, title, type, attachment, size, partnerDID]);
 
   // DEBUGGING SENT ASSETS

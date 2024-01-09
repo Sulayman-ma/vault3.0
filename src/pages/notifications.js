@@ -29,8 +29,8 @@ export default function Page() {
   }, [web5])
 
   return (
-    <div className="w-[32rem] flex-justify-center items-center">
-      <Timeline>
+    <div className=" m-auto">
+      <Timeline className="flex justify-center items-center gap-5 text-white">
         <Typography variant="h3" color="white">
           Notifications
         </Typography>
@@ -41,10 +41,10 @@ export default function Page() {
             <Spinner className="w-100 h-100" color="orange" />
           </div>
           :
-          !notifications && notifications.length === 0 ?
+          notifications && notifications.length === 0 ?
           <div className="flex justify-center items-center">
             <Typography variant="h5" color="white">
-              No associates added
+              Notifications are empty
             </Typography>
           </div>
           :
@@ -53,7 +53,7 @@ export default function Page() {
               <TimelineConnector />
               <TimelineHeader className="h-3">
                 <TimelineIcon />
-                <Typography variant="h6" color="blue-gray" className="leading-none">
+                <Typography variant="h6" color="blue-gray" className="leading-none text-white">
                   {/* notification title */}
                   {notif.message}
                 </Typography>
