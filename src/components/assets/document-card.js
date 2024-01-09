@@ -188,14 +188,7 @@ export default function DocumentCard({ assetData, updateAsset, setBlank }) {
           <PopoverContent className="bg-black border-none w-20 flex-col flex items-center">
             {
               assetData.shared ?
-              <Tooltip content="Shared assets cannot be modified">
-                <Button 
-                  className="bg-transparent text-white hover:shadow-none hover:text-gray-800" 
-                  disabled={true}
-                >
-                  Edit
-                </Button>
-              </Tooltip>
+              ''
               :
               <Button 
                 className="bg-transparent text-white hover:shadow-none hover:text-gray-800" 

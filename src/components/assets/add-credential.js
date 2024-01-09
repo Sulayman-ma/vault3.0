@@ -189,17 +189,14 @@ export default function AddCredential() {
           color="orange"
           onChange={() => {setShared(!shared)}}
         />
-        <div>
+        <div className={shared ? '' : 'hidden'}>
           <Input
             size="lg"
             placeholder="did:ion:EiATonoOnZFGWpw17..."
             label="Associate DID (optional)"
             type="text"
             className={clsx(
-              "!border-white !focus:border-orange-400 text-white",
-              {
-                'hidden' : !shared
-              }
+              "!border-white !focus:border-orange-400 text-white"
             )}
             variant="static"
             color="orange"
