@@ -12,6 +12,7 @@ import { useContext, useEffect, useState } from "react";
 import { 
   addCredential, 
   convertToBase64,
+  debugSentAssets,
 } from "@/lib/crud";
 import { Web5Context } from "@/lib/contexts";
 
@@ -26,9 +27,9 @@ export default function AddCredential() {
   const [description, setDescription] = useState('')
   const [attachment, setAttachment] = useState(null)
   const [size, setSize] = useState(null)
-  const [isWill, setIsWill] = useState(false)
   const [isFormReady, setIsFormReady] = useState(false);
   const [partnerDID, setPartnerDID] = useState(null)
+  const [shared, setShared] = useState(false)
   const [alertInfo, setAlertInfo] = useState({
     open: false,
     color: 'blue',
@@ -46,8 +47,24 @@ export default function AddCredential() {
       type.length > 0
     );
 
-    setIsWill(title === 'Will' || title === 'Special Message')
-  }, [web5, title, type, attachment, size]);
+    setShared(partnerDID.length > 0)
+  }, [web5, title, type, attachment, size, partnerDID]);
+
+  // DEBUGGING SENT ASSETS
+  useEffect(() => {
+    if(!web5) return;
+    if(!partnerDID) return;
+    try {
+      let routineFetch = setTimeout(async () => {
+        const fetchedData = await debugSentAssets(web5)
+        console.info('Assets sent to the enemy: ', fetchedData)
+      }, 5000); // run every 5 seconds
+  
+      return () => clearTimeout(routineFetch)
+    } catch (error) {
+      console.error(error.message)
+    }
+  }, [web5, partnerDID])
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -74,7 +91,8 @@ export default function AddCredential() {
         description: description.trim(),
         attachment: base64String,
         partnerDID: partnerDID,
-        myDid: myDid
+        myDid: myDid,
+        shared: shared
       }
 
       const code = await addCredential(web5, vcData)
@@ -147,7 +165,7 @@ export default function AddCredential() {
           <Input
             size="lg"
             placeholder="did:ion:EiATonoOnZFGWpw17..."
-            label="Recipient DID"
+            label="Associate DID (optional)"
             type="text"
             className="!border-white !focus:border-orange-400 text-white"
             variant="static"

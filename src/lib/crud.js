@@ -2,7 +2,7 @@ import { VerifiableCredential } from "@web5/credentials";
 import { DidIonMethod } from "@web5/dids";
 import { legacyVaultProtocol as lvp } from "./protocols";
 
-export async function addCredential(web5, vcData, myDid) {
+export async function addCredential(web5, vcData) {
   try {
     const portableDid = await DidIonMethod.create()
     const didString = portableDid.did
@@ -20,7 +20,7 @@ export async function addCredential(web5, vcData, myDid) {
     const signedVcJwt = await vc.sign({ did: portableDid })
 
     // create record for signed VC and store here
-    const response = await web5.dwn.records.create({
+    const response = await web5.dwn.records.write({
       data: signedVcJwt,
       message: {
         protocol: lvp.protocol,
@@ -31,11 +31,14 @@ export async function addCredential(web5, vcData, myDid) {
         author: myDid
       }
     })
+
+    // send to the partner if specified
     if (partnerDID) {
       const send = await response.record.send(partnerDID)
-      console.info('Sent to partner: ', send.status)
+      console.info('Shared to associate: ', send.status)
+      const notification = await sendNotification(web5, partnerDID, myDid)
     }
- 
+
     return response.status.code
   } catch (error) {
     console.error('Add credential failed:', error)
@@ -370,31 +373,23 @@ export function getFileInfo(base64String) {
   }
 }
 
-export async function transferAsset(web5, recordId, partnerDID) {
-  const response = await web5.dwn.records.read({
-    message: {
-      filter: {
-        recordId: recordId
-      }
-    }
-  })
-
-  const sendResponse = await response.record.send(partnerDID)
-
-  return sendResponse
-}
-
-export async function sendNotification(web5, message, partnerDID) {
+export async function sendNotification(web5, partnerDID, myDid) {
+  const currentDate = new Date().toLocaleDateString();
+  const currentTime = new Date().toLocaleTimeString();
   // CREATE NOTIFICATION
-  const { record } = await web5.dwn.records.create({
-    // does not store
-    store: false,
-    data: message,
+  const { record } = await web5.dwn.records.write({
+    data: {
+      message: 
+      `Shared asset: ${myDid.substring(0, 20)}...} -> ${partnerDID.substring(0, 20)}...}`,
+      timestamp: `${currentDate} ${currentTime}`,
+    },
     message: {
       protocol: lvp.protocol,
       protocolPath: "notification",
       schema: lvp.types.notification.schema,
-      dataFormat: 'text/plain',
+      dataFormat: 'application/json',
+      recipient: partnerDID,
+      author: myDid
     }
   })
 
@@ -402,4 +397,65 @@ export async function sendNotification(web5, message, partnerDID) {
   const response = await record.send(partnerDID)
 
   return response.status.code
+}
+
+export async function getNotifications(web5) {
+  try {
+    const response = await web5.dwn.records.query({
+      message: {
+        filter: {
+          protocol: lvp.protocol,
+          schema: lvp.types.notification.schema,
+        },
+      },
+    });
+  
+    if (response.status.code === 200) {
+      const notifs = await Promise.all(
+        response.records.map(async (record) => {
+          const dwnData = await record.data.json();
+          return dwnData;
+        })
+      );
+      return notifs
+    }
+  } catch (error) {
+    console.error('Failed to fetch notifications:', error)
+  }
+}
+
+export async function debugSentAssets(web5, receivingDID) {
+  try {
+    const response = await web5.dwn.records.query({
+      from: receivingDID,
+      message: {
+        filter: {
+          protocol: "https://legacy-vault/protocol",
+          schema: "https://legacy-vault/credential",
+          dataFormat: 'text/plain'
+        },
+      },
+    });
+    
+    if (response.status.code === 200) {
+      const docs = await Promise.all(
+        // retrieve payload and other necessary data for the credentials
+        response.records.map(async (record) => {
+          const signedJwt = await record.data.text();
+          const vc = VerifiableCredential.parseJwt({ vcJwt: signedJwt })
+          const vcDetails = vc.vcDataModel.credentialSubject
+          const details = {
+            group: vc.type,
+            recordId: record.id,
+            ...vcDetails,
+            created: vc.vcDataModel.issuanceDate
+          }
+          return details;
+        })
+      );
+      return docs
+    }
+  } catch (error) {
+    console.error('Failed to fetch send assets:', error)
+  }
 }
