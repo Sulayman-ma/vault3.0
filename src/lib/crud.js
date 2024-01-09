@@ -30,6 +30,7 @@ export async function addCredential(web5, vcData) {
         dataFormat: 'text/plain',
       }
     })
+    // await response.record.send()
 
     return response.status.code
   } catch (error) {
@@ -51,6 +52,7 @@ export async function addSecret(web5, recordData) {
         dataFormat: 'application/json'
       }
     })
+    await response.record.send()
 
     return response.status.code
   } catch (error) {
@@ -73,7 +75,7 @@ export async function addBeneficiary(web5, recordData) {
 
     return response.status.code
   } catch (error) {
-    console.error('Add beneficiary failed:', error)
+    console.error('Add partner failed:', error)
   }
 }
 
@@ -173,6 +175,14 @@ export async function getAssets(web5) {
   }
 }
 
+export async function getAssetByType(web5, type) {
+  const assets = await getAssets(web5)
+
+  const find = assets.find(match => match.group === type)
+
+  return find.records
+}
+
 export async function getBenByDid(web5, did) {
   try {
     const beneficiaries = await getBeneficiaries(web5)
@@ -204,7 +214,6 @@ export async function getBeneficiaries(web5) {
           const details = {
             recordId: record.id,
             name: payload.benName,
-            relationship: payload.benRelationship,
             did: payload.benDid,
           }
           return details;
@@ -213,7 +222,7 @@ export async function getBeneficiaries(web5) {
       return beneficiaries
     }
   } catch (error) {
-    console.error('Failed to get beneficiaries:', error)
+    console.error('Failed to get partners:', error)
   }
 }
 
@@ -359,4 +368,58 @@ export function getFileInfo(base64String) {
     mimeType: mimeType,
     extension: extension
   }
+}
+
+export async function transferAssetGroup(web5, type, partnerDID) {
+  // TRANSFERS ASSETS OF THE SPECIFIED GROUP (OR ALL) TO THE BENEFICIARY'S REMOTE DWN
+  try {
+    const records = await getAssetByType(web5, type)
+
+    console.info('Sending assets to ', partnerDID, '...')
+    records.forEach(async record => {
+      const response = await record.send(partnerDID)
+      console.info(response.status.code)
+    });
+    return 202
+  } catch (error) {
+    console.error('Failed to transfer assets: ', error)
+  }
+}
+
+export async function transferAsset(web5, recordId, partnerDID) {
+  try {
+    const response = await web5.dwn.records.read({
+      message: {
+        filter: {
+          recordId: recordId
+        },
+      },
+    })
+
+    const sendResponse = await response.record.send(partnerDID)
+
+    return sendResponse.status.code
+  } catch (error) {
+    console.error('Failed to transfer asset: ', error)
+  }
+}
+
+export async function sendNotification(web5, message, partnerDID) {
+  // CREATE NOTIFICATION
+  const { record } = await web5.dwn.records.create({
+    // does not store
+    store: false,
+    data: message,
+    message: {
+      protocol: lvp.protocol,
+      protocolPath: "notification",
+      schema: lvp.types.notification.schema,
+      dataFormat: 'text/plain',
+    }
+  })
+
+  // SEND NOTIFICATION TO THE RECEIVING REMOTE DWN
+  const response = await record.send(partnerDID)
+
+  return response.status.code
 }

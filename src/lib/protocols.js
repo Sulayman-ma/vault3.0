@@ -14,6 +14,14 @@ export const legacyVaultProtocol = {
       schema: "https://legacy-vault/beneficiary",
       dataFormats: ['application/json']
     },
+    request: {
+      schema: "https://legacy-vault/request",
+      dataFormats: ['application/json']
+    },
+    notification: {
+      schema: "https://legacy-vault/notification",
+      dataFormats: ['text/plain']
+    },
   },
   structure: {
     pass: {
@@ -24,14 +32,27 @@ export const legacyVaultProtocol = {
     },
     credential: {
       $actions: [
-        { who: "author", of: "credential", can: "write" },
-        { who: "anyone", can: "read" },
+        { who: "anyone", can: "write" },
+        { who: "author", of: "credential", can: "read" },
+        { who: "recipient", of: "credential", can: "read" },
       ]
     },
     beneficiary: {
       $actions: [
         { who: "author", of: "beneficiary", can: "write" },
         { who: "anyone", can: "read" },
+      ]
+    },
+    request: {
+      $actions: [
+        { who: "anyone", can: "read" },
+        { who: "anyone", can: "write" },
+      ]
+    },
+    notification: {
+      $actions: [
+        { who: "anyone", can: "read" },
+        { who: "anyone", can: "write" },
       ]
     },
   }

@@ -16,7 +16,6 @@ export default function VaultLayout({ children }) {
   const [web5, setWeb5] = useState(null)
   const [myDid, setMyDid] = useState(null)
 
-
   // connecting to web5 and retaining Web5 object for usage
   useEffect(() => {
     const initWeb5 = async () => {
@@ -24,7 +23,7 @@ export default function VaultLayout({ children }) {
         console.info('Connecting to web5')
         const { Web5 } = await import('@web5/api')
         const { web5, did: myDid } = await Web5.connect({ sync: '5s' })
-  
+
         setWeb5(web5)
         setMyDid(myDid)
         if (web5 && myDid) {
@@ -43,11 +42,13 @@ export default function VaultLayout({ children }) {
       {/* APP LOADING ANIMATION ON MAIN LAYOUT */}
       {
         !web5 ?
-        (<div className="flex flex-col gap-10 justify-center items-center h-screen text-white">
-          <Square3Stack3DIcon className="w-20 h-20 animate-pulse" />
-          Connecting to Vault...
-          <Spinner className="w-15 h-15" color="orange" />
-        </div>)
+        (
+          <div className="flex flex-col gap-10 justify-center items-center h-screen text-white">
+            <Square3Stack3DIcon className="w-20 h-20 animate-pulse" />
+            Connecting to Vault...
+            <Spinner className="w-15 h-15" color="orange" />
+          </div>
+        )
         :
         <Web5Context.Provider value={{
           web5: web5,
@@ -57,7 +58,6 @@ export default function VaultLayout({ children }) {
           <div className="flex-1 p-8 bg-black h-auto scroll-disabled">
             {children}
           </div>
-          {/* <Footer /> */}
         </Web5Context.Provider>
       }
     </main>

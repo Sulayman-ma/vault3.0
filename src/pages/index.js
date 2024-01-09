@@ -9,9 +9,7 @@ import {
   IconButton,
   ListItemSuffix,
   Spinner,
-  Badge
 } from "@material-tailwind/react"
-import { renderDetailedCard } from "@/lib/render-cards";
 import { NewAssetMini } from "@/components/assets/mini-cards";
 import { Fragment, useContext, useEffect, useState } from "react"
 import { Web5Context } from "@/lib/contexts"
@@ -45,6 +43,7 @@ export default function Page() {
       let routineFetch = setTimeout(async () => {
         const fetchedData = await getAssets(web5)
         setRenderData(fetchedData)
+        // console.info(fetchedData)
       }, 2000); // run every 2 seconds
   
       return () => clearTimeout(routineFetch)
