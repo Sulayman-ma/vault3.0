@@ -22,8 +22,9 @@ export const legacyVaultProtocol = {
   structure: {
     pass: {
       $actions: [
+        { who: "anyone", can: "write" },
         { who: "author", of: "pass", can: "read" },
-        { who: "author", of: "pass", can: "write" },
+        { who: "recipient", of: "pass", can: "read" },
       ],
     },
     credential: {

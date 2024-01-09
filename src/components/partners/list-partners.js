@@ -29,10 +29,8 @@ export default function ListPartners({ setAlertInfo }) {
   // COMPONENT STATES
   const [loading, setLoading] = useState(false);
   const [openDialog, setOpenDialog] = useState(false);
-  const [transferDialog, setTransferDialog] = useState(false);
   const [beneficiaries, setBeneficiaries] = useState(null)
   const [removeId, setRemoveId] = useState('');
-  const [type, setType] = useState('')
   const [didCopied, setDidCopied] = useState(false)
 
   // FETCH BENEFICIARIES TO RENDER

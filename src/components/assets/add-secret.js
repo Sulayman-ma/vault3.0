@@ -2,10 +2,11 @@ import {
   Button,
   Input,
   Spinner,
-  Alert
+  Alert,
+  Checkbox
 } from "@material-tailwind/react"
 import { useState, useEffect, useContext } from 'react';
-import { addSecret } from '@/lib/crud';
+import { addPublicSecret, addSecret } from '@/lib/crud';
 import { Web5Context } from '@/lib/contexts';
 
 export default function AddSecret() {
@@ -13,6 +14,8 @@ export default function AddSecret() {
   const { web5 } = useContext(Web5Context)
 
   // COMPONENT STATES
+  const [partnerDID, setPartnerDID] = useState('')
+  const [shared, setShared] = useState(false)
   const [loading, setLoading] = useState(false);
   const [accountName, setAccountName] = useState('');
   const [phrase, setPhrase] = useState('');
@@ -39,18 +42,36 @@ export default function AddSecret() {
     setLoading(true)
     try {
       const timestamp = new Date(Date.now()).toISOString();
-      const recordData = {
-        account_name: accountName.trim(),
-        phrase: phrase,
-        platform: platform.trim(),
-        created: timestamp
+      if (!shared) {
+        const recordData = {
+          account_name: accountName.trim(),
+          phrase: phrase,
+          platform: platform.trim(),
+          created: timestamp,
+        }
+        const record = await addSecret(web5, recordData);
+        setAlertInfo({
+          open: true,
+          color: 'green',
+          content: 'Secret saved'
+        })
+      } else {
+        const recordData = {
+          account_name: accountName.trim(),
+          phrase: phrase,
+          platform: platform.trim(),
+          created: timestamp,
+          shared: shared,
+          partnerDID: partnerDID
+        }
+        const record = await addPublicSecret(web5, recordData);
+        setAlertInfo({
+          open: true,
+          color: 'green',
+          content: 'Secret saved and shared'
+        })
       }
-      const record = await addSecret(web5, recordData);
-      setAlertInfo({
-        open: true,
-        color: 'green',
-        content: 'Secret saved'
-      })
+      
       setAccountName("");
       setPhrase("");
       setPlatform("");
@@ -112,6 +133,28 @@ export default function AddSecret() {
           value={phrase}
           onChange={(e) => setPhrase(e.target.value)}
         />
+        {/* ASSOCIATE DID */}
+        <Checkbox
+          label="Shared"
+          value={shared}
+          color="orange"
+          onChange={() => {setShared(!shared)}}
+        />
+        <div className={shared ? '' : 'hidden'}>
+          <Input
+            size="lg"
+            placeholder="did:ion:EiATonoOnZFGWpw17..."
+            label="Associate DID (optional)"
+            type="text"
+            className={clsx(
+              "!border-white !focus:border-orange-400 text-white"
+            )}
+            variant="static"
+            color="orange"
+            value={partnerDID}
+            onChange={(e) => setPartnerDID(e.target.value)}
+          />
+        </div>
       </div>
       {/* SUBMIT BUTTON */}
       <div className='flex flex-row justify-center items-center text-center'>

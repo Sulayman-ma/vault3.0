@@ -99,7 +99,38 @@ export async function addSecret(web5, recordData) {
 
     return response.status.code
   } catch (error) {
-    console.error('Add pass failed:', error)
+    console.error('Add secret failed:', error)
+    throw new Error('Failed to add entry')
+  }
+}
+
+export async function addPublicSecret(web5, recordData) {
+  try {
+    const { partnerDID, myDid, ...rest } = recordData
+    const response = await web5.dwn.records.create({
+      data: {
+        group: 'Secret',
+        payload: rest,
+      },
+      message: {
+        protocol: lvp.protocol,
+        protocolPath: "pass",
+        schema: lvp.types.pass.schema,
+        dataFormat: 'application/json',
+        recipient: partnerDID,
+        author: myDid,
+      }
+    })
+    // send to the associate
+    const send = await response.record.send(partnerDID)
+    console.info('Shared to associate: ', send)
+    const notification = await sendNotification(
+      web5, partnerDID, myDid, `New shared secret : ${rest.platform}`
+    )
+
+    return response.status.code
+  } catch (error) {
+    console.error('Share secret failed:', error)
     throw new Error('Failed to add entry')
   }
 }
