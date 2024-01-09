@@ -17,6 +17,7 @@ import {
   debugSentAssets,
 } from "@/lib/crud";
 import { Web5Context } from "@/lib/contexts";
+import clsx from "clsx";
 
 export default function AddCredential() {
   // WEB5 CONTEXT
