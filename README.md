@@ -25,7 +25,7 @@ This application grants users complete control and ownership over all stored ass
 A major feature of this platform is the ability to share any of these assets to other users. Users sharing assets are called Associates. Assets are classified into two:
 - Shared: Assets can be shared upon creation with one associate at a time. They are **immutable** and copies can be sent to other users at any time.
 - Private: Private assets are editable and vary per user. Copies can also be shared with others and can be modified freely.
-- 
+
 ### Associates
 Information of associates can be added by registering their names and DIDs and they can be seen on the Associates page. The purpose of this page is to allow for easy copying of an associate's DID for future use. Adding an associate does not give them access to any assets in the adding user's vault and this stored information can be deleted freely.
 
