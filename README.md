@@ -20,9 +20,9 @@ Open your browser at [localhost port 3000](http://localhost:3000) to see the res
 # Digital Legacy Vault
 The **Digital Legacy Vault** is a decentralised web-based application built on top of [Web5](https://developer.tbd.website/docs/web5/) that offers users the ability to securely store and manage their digital assets. These digital assets are simply a group of the individual's most important documents including but not limited to legal documents, wills, special messages, secrets, passwords and even backup codes for 2FA enabled accounts.
 
-### Assets page
+### Assets
 This application grants users complete control and ownership over all stored assets. Allowing them to edit, share and/or delete any asset at will and at any given time.
-A major feature of this platform is the ability to share any of these assets to other users. Users sharing assets are called Associates. Assets are classified into two:
+A major feature of this platform is the ability to share any of these assets to other users. Users sharing assets are called Associates. Assets are grouped according to their type and classified into two according to their privacy level:
 - Shared: Assets can be shared upon creation with one associate at a time. They are **immutable** and copies can be sent to other users at any time.
 - Private: Private assets are editable and vary per user. Copies can also be shared with others and can be modified freely.
 
