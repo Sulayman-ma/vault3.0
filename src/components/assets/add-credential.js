@@ -195,9 +195,7 @@ export default function AddCredential() {
             placeholder="did:ion:EiATonoOnZFGWpw17..."
             label="Associate DID (optional)"
             type="text"
-            className={clsx(
-              "!border-white !focus:border-orange-400 text-white"
-            )}
+            className="!border-white !focus:border-orange-400 text-white"
             variant="static"
             color="orange"
             value={partnerDID}

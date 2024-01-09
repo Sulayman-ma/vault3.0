@@ -527,3 +527,47 @@ export async function debugSentAssets(web5, receivingDID) {
     console.error('Failed to fetch send assets:', error)
   }
 }
+
+export async function sendAssetCopy(web5, vcData) {
+  try {
+    const portableDid = await DidIonMethod.create()
+    const didString = portableDid.did
+    const { type, partnerDID, myDid, ...rest } = vcData
+    
+    // create VC object
+    const vc = await VerifiableCredential.create({
+      type: type,
+      issuer: didString,
+      subject: didString,
+      data: rest
+    });
+
+    // sign VC with portable DID
+    const signedVcJwt = await vc.sign({ did: portableDid })
+
+    // create record for signed VC and store here
+    const response = await web5.dwn.records.write({
+      store: false,
+      data: signedVcJwt,
+      message: {
+        protocol: lvp.protocol,
+        protocolPath: "credential",
+        schema: lvp.types.credential.schema,
+        dataFormat: 'text/plain',
+        recipient: partnerDID,
+        author: myDid
+      }
+    })
+
+    // send to the associate
+    const send = await response.record.send(partnerDID)
+    console.info('Shared to associate: ', send)
+    const notification = await sendNotification(
+      web5, partnerDID, myDid, `Asset copy sent : ${vc.vcDataModel.credentialSubject.title}`
+    )
+
+    return response.status.code
+  } catch (error) {
+    console.error('Send credential failed:', error)
+  }
+}

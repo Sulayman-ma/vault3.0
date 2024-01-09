@@ -8,6 +8,7 @@ import {
 import { useState, useEffect, useContext } from 'react';
 import { addPublicSecret, addSecret } from '@/lib/crud';
 import { Web5Context } from '@/lib/contexts';
+import clsx from "clsx";
 
 export default function AddSecret() {
   // WEB5 CONTEXT
