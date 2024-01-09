@@ -20,7 +20,7 @@ import { useState, useContext, useEffect } from "react";
 import { Web5Context } from "@/lib/contexts";
 import { transferAssetGroup, deleteRecord, getBeneficiaries } from "@/lib/crud";
 
-import { CheckIcon, ClipboardIcon, EllipsisHorizontalIcon } from "@heroicons/react/24/solid";
+import { CheckIcon, ClipboardIcon, EllipsisHorizontalIcon, TrashIcon } from "@heroicons/react/24/solid";
 
 export default function ListPartners({ setAlertInfo }) {
   // WEB5 CONTEXT
@@ -152,27 +152,12 @@ export default function ListPartners({ setAlertInfo }) {
                     <Typography variant="h6" color="white" className="font-semibold">
                       {name}
                     </Typography>
-                    <Popover placement="bottom">
-                      <PopoverHandler>
-                        <IconButton>
-                          <EllipsisHorizontalIcon className="w-10 h-10" />
-                        </IconButton>
-                      </PopoverHandler>
-                      <PopoverContent className="bg-black border-none w-20 flex-col flex items-center">
-                        <Button 
-                          className={`${classes}`} 
-                          onClick={() => {handleTransfer(did)}}
-                        >
-                          Transfer assets
-                        </Button>
-                        <Button 
-                          className={`${classes} hover:text-red-800`}  
-                          onClick={() => {handleRemove(recordId)}}
-                        >
-                          Remove
-                        </Button>
-                      </PopoverContent>
-                    </Popover>
+                    <IconButton
+                      className={`${classes} hover:text-red-800`}  
+                      onClick={() => {handleRemove(recordId)}}
+                    >
+                      <TrashIcon className="w-5 h-5" />
+                    </IconButton>
                   </div>
                   
                   {/* truncated DID */}

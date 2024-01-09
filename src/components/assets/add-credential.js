@@ -17,7 +17,7 @@ import { Web5Context } from "@/lib/contexts";
 
 export default function AddCredential() {
   // WEB5 CONTEXT
-  const { web5 } = useContext(Web5Context)
+  const { web5, myDid } = useContext(Web5Context)
 
   // COMPONENT STATES
   const [loading, setLoading] = useState(false);
@@ -26,7 +26,9 @@ export default function AddCredential() {
   const [description, setDescription] = useState('')
   const [attachment, setAttachment] = useState(null)
   const [size, setSize] = useState(null)
+  const [isWill, setIsWill] = useState(false)
   const [isFormReady, setIsFormReady] = useState(false);
+  const [partnerDID, setPartnerDID] = useState(null)
   const [alertInfo, setAlertInfo] = useState({
     open: false,
     color: 'blue',
@@ -43,6 +45,8 @@ export default function AddCredential() {
       title.length > 0 && 
       type.length > 0
     );
+
+    setIsWill(title === 'Will' || title === 'Special Message')
   }, [web5, title, type, attachment, size]);
 
   const handleSubmit = async (e) => {
@@ -69,14 +73,16 @@ export default function AddCredential() {
         title: title.trim(),
         description: description.trim(),
         attachment: base64String,
+        partnerDID: partnerDID,
+        myDid: myDid
       }
 
       const code = await addCredential(web5, vcData)
 
       setAlertInfo({
         open: true,
-        color: `${code === 202 ? 'green' : 'red'}`,
-        content: `${code === 202 ? 'Asset saved' : 'Failed to save asset'}`
+        color: `${code <= 202 ? 'green' : 'red'}`,
+        content: `${code <= 202 ? 'Asset saved' : 'Failed to save asset'}`
       })
       setTitle('')
       setDescription('')
@@ -134,6 +140,21 @@ export default function AddCredential() {
             color="orange"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
+          />
+        </div>
+        {/* PARTNER DID */}
+        <div>
+          <Input
+            size="lg"
+            placeholder="did:ion:EiATonoOnZFGWpw17..."
+            label="Recipient DID"
+            type="text"
+            className="!border-white !focus:border-orange-400 text-white"
+            variant="static"
+            color="orange"
+            value={partnerDID}
+            // disabled={!isWill}
+            onChange={(e) => setPartnerDID(e.target.value)}
           />
         </div>
         {/* ADDITIONAL CONTENT */}

@@ -2,11 +2,11 @@ import { VerifiableCredential } from "@web5/credentials";
 import { DidIonMethod } from "@web5/dids";
 import { legacyVaultProtocol as lvp } from "./protocols";
 
-export async function addCredential(web5, vcData) {
+export async function addCredential(web5, vcData, myDid) {
   try {
     const portableDid = await DidIonMethod.create()
     const didString = portableDid.did
-    const { type, ...rest } = vcData
+    const { type, partnerDID, myDid, ...rest } = vcData
     
     // create VC object
     const vc = await VerifiableCredential.create({
@@ -15,7 +15,6 @@ export async function addCredential(web5, vcData) {
       subject: didString,
       data: rest
     });
-
 
     // sign VC with portable DID
     const signedVcJwt = await vc.sign({ did: portableDid })
@@ -28,10 +27,15 @@ export async function addCredential(web5, vcData) {
         protocolPath: "credential",
         schema: lvp.types.credential.schema,
         dataFormat: 'text/plain',
+        recipient: partnerDID,
+        author: myDid
       }
     })
-    // await response.record.send()
-
+    if (partnerDID) {
+      const send = await response.record.send(partnerDID)
+      console.info('Sent to partner: ', send.status)
+    }
+ 
     return response.status.code
   } catch (error) {
     console.error('Add credential failed:', error)
@@ -52,7 +56,8 @@ export async function addSecret(web5, recordData) {
         dataFormat: 'application/json'
       }
     })
-    await response.record.send()
+    // await response.record.send()
+    console.info(response.status.code)
 
     return response.status.code
   } catch (error) {
@@ -98,10 +103,7 @@ export async function getSecrets(web5) {
           const details = {
             group: dwnData.group,
             recordId: record.id,
-            platform: payload.platform,
-            account_name: payload.account_name,
-            phrase: payload.phrase,
-            created: payload.created
+            ...payload
           }
           return details;
         })
@@ -135,9 +137,7 @@ export async function getCredentials(web5) {
           const details = {
             group: vc.type,
             recordId: record.id,
-            title: vcDetails.title,
-            description: vcDetails.description,
-            attachment: vcDetails.attachment,
+            ...vcDetails,
             created: vc.vcDataModel.issuanceDate
           }
           return details;
@@ -370,38 +370,18 @@ export function getFileInfo(base64String) {
   }
 }
 
-export async function transferAssetGroup(web5, type, partnerDID) {
-  // TRANSFERS ASSETS OF THE SPECIFIED GROUP (OR ALL) TO THE BENEFICIARY'S REMOTE DWN
-  try {
-    const records = await getAssetByType(web5, type)
-
-    console.info('Sending assets to ', partnerDID, '...')
-    records.forEach(async record => {
-      const response = await record.send(partnerDID)
-      console.info(response.status.code)
-    });
-    return 202
-  } catch (error) {
-    console.error('Failed to transfer assets: ', error)
-  }
-}
-
 export async function transferAsset(web5, recordId, partnerDID) {
-  try {
-    const response = await web5.dwn.records.read({
-      message: {
-        filter: {
-          recordId: recordId
-        },
-      },
-    })
+  const response = await web5.dwn.records.read({
+    message: {
+      filter: {
+        recordId: recordId
+      }
+    }
+  })
 
-    const sendResponse = await response.record.send(partnerDID)
+  const sendResponse = await response.record.send(partnerDID)
 
-    return sendResponse.status.code
-  } catch (error) {
-    console.error('Failed to transfer asset: ', error)
-  }
+  return sendResponse
 }
 
 export async function sendNotification(web5, message, partnerDID) {

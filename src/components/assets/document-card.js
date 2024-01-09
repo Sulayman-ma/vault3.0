@@ -89,15 +89,16 @@ export default function DocumentCard({ assetData, updateAsset, setBlank }) {
     e.preventDefault()
     setLoading(true)
     try {
-      const code = await transferAsset(
+      const response = await transferAsset(
         web5, formData.recordId, partnerDID
       )
-      console.info('Transfer status: ', code)
+      console.info('Transfer response: ', response)
+      const code = response.status.code
       
       setAlertInfo({
         open: true,
-        color: `${code >= 200 ? 'green' : 'red'}`,
-        content: `${code >= 200 ? 'Asset transfered' : 'Transfer failed'}`
+        color: `${code <= 202 ? 'green' : 'red'}`,
+        content: `${code <= 202 ? 'Asset transfered' : 'Transfer failed'}`
       })
     } catch (error) {
       setAlertInfo({
@@ -206,13 +207,13 @@ export default function DocumentCard({ assetData, updateAsset, setBlank }) {
             >
               Edit
             </Button>
-            <Button 
+            {/* <Button 
               className="bg-transparent text-white hover:shadow-none hover:text-gray-800" 
               disabled={loading}
               onClick={() => {setTransferDialog(true)}}
             >
               Transfer
-            </Button>
+            </Button> */}
             <Button 
               className="bg-transparent text-white hover:shadow-none hover:text-red-800" 
               onClick={() => {setOpenDialog(true)}}
