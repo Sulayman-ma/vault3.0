@@ -11,7 +11,8 @@ import {
 } from "@material-tailwind/react"
 import { useContext, useEffect, useState } from "react";
 import { 
-  addCredential, 
+  addShared, 
+  addPrivate,
   convertToBase64,
   debugSentAssets,
 } from "@/lib/crud";
@@ -52,18 +53,18 @@ export default function AddCredential() {
   // DEBUGGING SENT ASSETS
   useEffect(() => {
     if(!web5) return;
-    if(!partnerDID) return;
+    if(!partnerDID || partnerDID === myDid) return;
     try {
       let routineFetch = setTimeout(async () => {
-        const fetchedData = await debugSentAssets(web5)
+        const fetchedData = await debugSentAssets(web5, partnerDID)
         console.info('Assets sent to the enemy: ', fetchedData)
-      }, 5000); // run every 5 seconds
+      }, 3000); // run every 5 seconds
   
       return () => clearTimeout(routineFetch)
     } catch (error) {
       console.error(error.message)
     }
-  }, [web5, partnerDID])
+  }, [web5, partnerDID, myDid])
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -84,23 +85,42 @@ export default function AddCredential() {
         base64String = await convertToBase64(attachment)
       }
 
-      const vcData = {
-        type: type,
-        title: title.trim(),
-        description: description.trim(),
-        attachment: base64String,
-        partnerDID: partnerDID,
-        myDid: myDid,
-        shared: shared
+      // FOR SHARED ASSETS
+      if (shared) {
+        const vcData = {
+          type: type,
+          title: title.trim(),
+          description: description.trim(),
+          attachment: base64String,
+          shared: shared,
+          partnerDID: partnerDID,
+          myDid: myDid,
+        }
+  
+        const code = await addShared(web5, vcData)
+        setAlertInfo({
+          open: true,
+          color: `green`,
+          content: 'Asset saved and shared'
+        })
+      } else {
+        // FOR PRIVATE ASSETS
+        const vcData = {
+          type: type,
+          title: title.trim(),
+          description: description.trim(),
+          attachment: base64String,
+          shared: shared
+        }
+  
+        const code = await addPrivate(web5, vcData)
+        setAlertInfo({
+          open: true,
+          color: `green`,
+          content: 'Asset saved'
+        })
       }
 
-      const code = await addCredential(web5, vcData)
-
-      setAlertInfo({
-        open: true,
-        color: `green`,
-        content: 'Asset saved'
-      })
       setTitle('')
       setDescription('')
       setPartnerDID('')
@@ -161,26 +181,31 @@ export default function AddCredential() {
             onChange={(e) => setTitle(e.target.value)}
           />
         </div>
-        {/* PARTNER DID */}
+        {/* ASSOCIATE DID */}
+        <Checkbox 
+          label="Shared"
+          value={shared}
+          color="orange"
+          onChange={() => {setShared(!shared)}}
+        />
         <div>
           <Input
             size="lg"
             placeholder="did:ion:EiATonoOnZFGWpw17..."
             label="Associate DID (optional)"
             type="text"
-            className="!border-white !focus:border-orange-400 text-white"
+            className={clsx(
+              "!border-white !focus:border-orange-400 text-white",
+              {
+                'hidden' : !shared
+              }
+            )}
             variant="static"
             color="orange"
             value={partnerDID}
-            // disabled={!isWill}
             onChange={(e) => setPartnerDID(e.target.value)}
           />
         </div>
-        <Checkbox 
-          label="Shared"
-          value={shared}
-          onChange={() => {setShared(!shared)}}
-        />
         {/* ADDITIONAL CONTENT */}
         <div>
           <Textarea

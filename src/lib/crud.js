@@ -2,7 +2,7 @@ import { VerifiableCredential } from "@web5/credentials";
 import { DidIonMethod } from "@web5/dids";
 import { legacyVaultProtocol as lvp } from "./protocols";
 
-export async function addCredential(web5, vcData) {
+export async function addShared(web5, vcData) {
   try {
     const portableDid = await DidIonMethod.create()
     const didString = portableDid.did
@@ -33,12 +33,46 @@ export async function addCredential(web5, vcData) {
       }
     })
 
-    // send to the partner if specified
-    if (partnerDID) {
-      const send = await response.record.send(partnerDID)
-      console.info('Shared to associate: ', send)
-      const notification = await sendNotification(web5, partnerDID, myDid)
-    }
+    // send to the associate
+    const send = await response.record.send(partnerDID)
+    console.info('Shared to associate: ', send)
+    const notification = await sendNotification(
+      web5, partnerDID, myDid, `New shared asset : ${vc.vcDataModel.credentialSubject.title}`
+    )
+
+    return response.status.code
+  } catch (error) {
+    console.error('Add credential failed:', error)
+  }
+}
+
+export async function addPrivate(web5, vcData) {
+  try {
+    const portableDid = await DidIonMethod.create()
+    const didString = portableDid.did
+    const { type, ...rest } = vcData
+    
+    // create VC object
+    const vc = await VerifiableCredential.create({
+      type: type,
+      issuer: didString,
+      subject: didString,
+      data: rest
+    });
+
+    // sign VC with portable DID
+    const signedVcJwt = await vc.sign({ did: portableDid })
+
+    // create record for signed VC and store here
+    const response = await web5.dwn.records.write({
+      data: signedVcJwt,
+      message: {
+        protocol: lvp.protocol,
+        protocolPath: "credential",
+        schema: lvp.types.credential.schema,
+        dataFormat: 'text/plain',
+      }
+    })
 
     return response.status.code
   } catch (error) {
@@ -122,7 +156,7 @@ export async function getSecrets(web5) {
 export async function getCredentials(web5) {
   try {
     const response = await web5.dwn.records.query({
-      from: 'did:ion:EiDjyHwlfWgRQ18FZN2eGAm3d0Bl52-pein-UO-U3IPgRg:eyJkZWx0YSI6eyJwYXRjaGVzIjpbeyJhY3Rpb24iOiJyZXBsYWNlIiwiZG9jdW1lbnQiOnsicHVibGljS2V5cyI6W3siaWQiOiJkd24tc2lnIiwicHVibGljS2V5SndrIjp7ImNydiI6IkVkMjU1MTkiLCJrdHkiOiJPS1AiLCJ4IjoiSWpxNVpZTV9jNHlqUTNCY3ZhOGtMdnNMa0hmQVlXR3FNNlR0cEpiNlpWQSJ9LCJwdXJwb3NlcyI6WyJhdXRoZW50aWNhdGlvbiJdLCJ0eXBlIjoiSnNvbldlYktleTIwMjAifSx7ImlkIjoiZHduLWVuYyIsInB1YmxpY0tleUp3ayI6eyJjcnYiOiJzZWNwMjU2azEiLCJrdHkiOiJFQyIsIngiOiIwbGllVmJZOEtaVTBhU1FIdGZIXzBIVXVKLUw1M2k5bWVUcTFGRmM3VnpvIiwieSI6IndHbGhXNnZUQzNUSnVjS21aYmZvQ3pqMUlxdkhPQkdwLWlPN3BFSl9JbzgifSwicHVycG9zZXMiOlsia2V5QWdyZWVtZW50Il0sInR5cGUiOiJKc29uV2ViS2V5MjAyMCJ9XSwic2VydmljZXMiOlt7ImlkIjoiZHduIiwic2VydmljZUVuZHBvaW50Ijp7ImVuY3J5cHRpb25LZXlzIjpbIiNkd24tZW5jIl0sIm5vZGVzIjpbImh0dHBzOi8vZHduLnRiZGRldi5vcmcvZHduNCIsImh0dHBzOi8vZHduLnRiZGRldi5vcmcvZHduNiJdLCJzaWduaW5nS2V5cyI6WyIjZHduLXNpZyJdfSwidHlwZSI6IkRlY2VudHJhbGl6ZWRXZWJOb2RlIn1dfX1dLCJ1cGRhdGVDb21taXRtZW50IjoiRWlCTW9YSzBoN1J3NWdhalB3RzU2MjRyVmhBbVNKSkFzR1gzQ1JaVmo0cndpUSJ9LCJzdWZmaXhEYXRhIjp7ImRlbHRhSGFzaCI6IkVpRF9uaWIyVGFXbmhKaU1PUU9SeXdHUk40MVJTUU41ODQzRFZ4Ry1tMmFrREEiLCJyZWNvdmVyeUNvbW1pdG1lbnQiOiJFaUFtX1pnME5wcXZlQy1Zdl93cnpGZFExRjZWa1FjWU5JeExoNGkxWUxUMG93In19',
+      // from: 'did:ion:EiDjyHwlfWgRQ18FZN2eGAm3d0Bl52-pein-UO-U3IPgRg:eyJkZWx0YSI6eyJwYXRjaGVzIjpbeyJhY3Rpb24iOiJyZXBsYWNlIiwiZG9jdW1lbnQiOnsicHVibGljS2V5cyI6W3siaWQiOiJkd24tc2lnIiwicHVibGljS2V5SndrIjp7ImNydiI6IkVkMjU1MTkiLCJrdHkiOiJPS1AiLCJ4IjoiSWpxNVpZTV9jNHlqUTNCY3ZhOGtMdnNMa0hmQVlXR3FNNlR0cEpiNlpWQSJ9LCJwdXJwb3NlcyI6WyJhdXRoZW50aWNhdGlvbiJdLCJ0eXBlIjoiSnNvbldlYktleTIwMjAifSx7ImlkIjoiZHduLWVuYyIsInB1YmxpY0tleUp3ayI6eyJjcnYiOiJzZWNwMjU2azEiLCJrdHkiOiJFQyIsIngiOiIwbGllVmJZOEtaVTBhU1FIdGZIXzBIVXVKLUw1M2k5bWVUcTFGRmM3VnpvIiwieSI6IndHbGhXNnZUQzNUSnVjS21aYmZvQ3pqMUlxdkhPQkdwLWlPN3BFSl9JbzgifSwicHVycG9zZXMiOlsia2V5QWdyZWVtZW50Il0sInR5cGUiOiJKc29uV2ViS2V5MjAyMCJ9XSwic2VydmljZXMiOlt7ImlkIjoiZHduIiwic2VydmljZUVuZHBvaW50Ijp7ImVuY3J5cHRpb25LZXlzIjpbIiNkd24tZW5jIl0sIm5vZGVzIjpbImh0dHBzOi8vZHduLnRiZGRldi5vcmcvZHduNCIsImh0dHBzOi8vZHduLnRiZGRldi5vcmcvZHduNiJdLCJzaWduaW5nS2V5cyI6WyIjZHduLXNpZyJdfSwidHlwZSI6IkRlY2VudHJhbGl6ZWRXZWJOb2RlIn1dfX1dLCJ1cGRhdGVDb21taXRtZW50IjoiRWlCTW9YSzBoN1J3NWdhalB3RzU2MjRyVmhBbVNKSkFzR1gzQ1JaVmo0cndpUSJ9LCJzdWZmaXhEYXRhIjp7ImRlbHRhSGFzaCI6IkVpRF9uaWIyVGFXbmhKaU1PUU9SeXdHUk40MVJTUU41ODQzRFZ4Ry1tMmFrREEiLCJyZWNvdmVyeUNvbW1pdG1lbnQiOiJFaUFtX1pnME5wcXZlQy1Zdl93cnpGZFExRjZWa1FjWU5JeExoNGkxWUxUMG93In19',
       message: {
         filter: {
           protocol: "https://legacy-vault/protocol",
